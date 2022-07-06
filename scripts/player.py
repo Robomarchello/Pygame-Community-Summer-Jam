@@ -4,10 +4,11 @@ import pygame
 
 from scripts.entity import Entity
 from scripts.tile import Tile
+from scripts.particle import Particle
 
 class Player(Entity):
-    SPEED = 2
-    JUMP_HEIGHT = 9.5
+    SPEED = 1
+    JUMP_HEIGHT = 7
 
     def __init__(self, x, y) -> None:
         super().__init__(x, y)
@@ -56,7 +57,7 @@ class Player(Entity):
                 if movement["vertical"] > 0:
                     player_rect.bottom = tile.rect.top
                     self.is_on_ground = True
-                    self.y_velocity = 3
+                    self.y_velocity = 2
                 if movement["vertical"] < 0:
                     player_rect.top = tile.rect.bottom
 
@@ -78,6 +79,10 @@ class Player(Entity):
             self.y_velocity += 0.2
 
         self.rect = self.calculate_rect(player_movement, self.rect, tiles)
+
+    @property
+    def get_pos(self):
+        return (self.x-self.camera.x, self.y-self.camera.y)
         
 
     def draw(self, display) -> None:
@@ -85,7 +90,8 @@ class Player(Entity):
         Draws the player at the rect position
         """
         mx, my = pygame.mouse.get_pos()
-        self.camera.x += (self.rect.x-self.camera.x-75+mx/50)/7
+        mx /= 2
+        self.camera.x += (self.rect.x-self.camera.x-80+mx/50)/7
         self.camera.y += (self.rect.y-self.camera.y-75+my/50)/7
 
 

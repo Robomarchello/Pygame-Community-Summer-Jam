@@ -5,6 +5,7 @@ from scripts.player import Player
 from scripts.tile import Tile
 from scripts.gui import Text, GuiManager
 from scripts.images import *
+from scripts.particle import Particle, ParticleManager
 
 import random
 from typing import List
@@ -26,6 +27,8 @@ class Game:
 
         self.key_presses = {"a": False, "d": False}
 
+        self.particle_manager = ParticleManager()
+
         with open("assets/map/map.json", "rb") as file:
             map_data = json.load(file)
         self.tiles = []
@@ -36,10 +39,10 @@ class Game:
 
         self.gui_manager = GuiManager([]) 
 
-        self.seed = 1
+        self.seed = random.randrange(-1000000, 1000000)
 
     def generate_map(self, noise_size, threshold):
-        noise = PerlinNoise(octaves=8, seed=4)
+        noise = PerlinNoise(octaves=8, seed=self.seed)
         noise = [[noise([i/noise_size[0], j/noise_size[1]]) 
         for j in range(noise_size[0])] for i in range(noise_size[1])]
         for y, row in enumerate(noise):
@@ -78,6 +81,8 @@ class Game:
                     if event.key == pygame.K_SPACE:
                         if self.player.is_on_ground:
                             self.player.y_velocity -= self.player.JUMP_HEIGHT
+                            for i in range(15):
+                                self.particle_manager.particles.append(Particle(self.player.rect.x, self.player.rect.y, random.randrange(5, 10), random.randrange(-3, 3), 0, True, random.randrange(3, 6), True))
 
             keys = pygame.key.get_pressed()
             self.key_presses["a"] = keys[pygame.K_a]
@@ -89,6 +94,7 @@ class Game:
             self.render_map(self.display, self.tiles)
 
             self.gui_manager.draw_gui_elements(self.display, self.events)
+            self.particle_manager.manage_particles(self.display, self.player.camera)
 
             self.screen.blit(pygame.transform.scale(self.display, (800, 600)), (0, 0))
             pygame.display.flip()
