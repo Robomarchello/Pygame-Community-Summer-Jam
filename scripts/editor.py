@@ -19,7 +19,7 @@ class Editor:
             self.block_images.append(block[4])
             block.remove(block[4])
 
-        self.tiles = ["assets/images/building.png", "assets/images/player_walk1.png"]
+        self.tiles = ["assets/images/player_walk1.png"]
 
         self.clicking = False
         self.select_image = None
