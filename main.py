@@ -48,6 +48,12 @@ class Game:
                     rect = pygame.Rect(x*16, y*16, 16, 16)
                     self.tiles.append(Tile(rect=rect, color=(100, 100, 100), image="assets/images/example.png"))
 
+        for i, tile in enumerate(self.tiles):
+            if pygame.Rect(tile.rect.x + 16, tile.rect.y, 16, 16) not in self.tiles:
+                self.tiles[i].image = pygame.image.load("assets/images/dark_tile.png")
+            if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
+                self.tiles[i].image = pygame.image.load("assets/images/grassy_caves/top.png")
+
     def render_map(self, display: pygame.Surface, tiles: List[Tile]) -> None:
         """
         Renders the games tiles
@@ -60,7 +66,7 @@ class Game:
     async def main(self):
         self.generate_map((75, 50), 0.02)
         while self.running:
-            self.display.fill((65, 106, 163))
+            self.display.fill((34, 32, 52))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
 
             self.events = pygame.event.get()
