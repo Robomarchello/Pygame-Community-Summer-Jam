@@ -35,6 +35,10 @@ class Player(Entity):
 
         self.moving_right = True
 
+        self.dash = 0
+        self.rotation = 0
+        self.double_jumping = False
+
     def get_colliding_tiles(
         self, tiles: List[Tile], player_rect: pygame.Rect
     ) -> List[Tile]:
@@ -72,6 +76,8 @@ class Player(Entity):
                     self.is_on_ground = True
                     self.y_velocity = 2
                     self.jump_count = 0
+                    self.double_jumping = False
+                    self.rotation = 0
                 if movement["vertical"] < 0:
                     player_rect.top = tile.rect.bottom
 
@@ -124,8 +130,12 @@ class Player(Entity):
         else:
             self.spear_offset = 5
 
+        if self.double_jumping:
+            print("yes")
+            self.rotation += 10
+
         self.animation_index = self.animate(self.walk_images, self.animation_index, 15)
-        display.blit(pygame.transform.flip(self.walk_images[self.animation_index//15], not self.moving_right, False), (self.rect.x-self.camera.x, self.rect.y-self.camera.y))
+        display.blit(pygame.transform.rotate(pygame.transform.flip(self.walk_images[self.animation_index//15], not self.moving_right, False), self.rotation), (self.rect.x-self.camera.x, self.rect.y-self.camera.y))
 
 
 
