@@ -7,7 +7,7 @@ from scripts.tile import Tile
 
 class Player(Entity):
     SPEED = 2
-    JUMP_HEIGHT = 10
+    JUMP_HEIGHT = 9.5
 
     def __init__(self, x, y) -> None:
         super().__init__(x, y)
@@ -56,6 +56,7 @@ class Player(Entity):
                 if movement["vertical"] > 0:
                     player_rect.bottom = tile.rect.top
                     self.is_on_ground = True
+                    self.y_velocity = 3
                 if movement["vertical"] < 0:
                     player_rect.top = tile.rect.bottom
 
