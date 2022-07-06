@@ -1,13 +1,14 @@
 from typing import List
 
 import pygame
+import math
 
 from scripts.entity import Entity
 from scripts.tile import Tile
 from scripts.particle import Particle
+from scripts.images import *
 
 class Player(Entity):
-    SPEED = 1
     JUMP_HEIGHT = 7
 
     def __init__(self, x, y) -> None:
@@ -21,6 +22,16 @@ class Player(Entity):
         self.animation_index = 0
         
         self.camera = pygame.math.Vector2()
+        self.player_movement = {"horizontal": 0, "vertical": self.y_velocity}
+
+        self.jump_count = 0
+
+        self.SPEED = 2
+
+        self.attacking = False
+
+        self.spear_offset = 5
+        self.cooldown = 0
 
     def get_colliding_tiles(
         self, tiles: List[Tile], player_rect: pygame.Rect
@@ -58,6 +69,7 @@ class Player(Entity):
                     player_rect.bottom = tile.rect.top
                     self.is_on_ground = True
                     self.y_velocity = 2
+                    self.jump_count = 0
                 if movement["vertical"] < 0:
                     player_rect.top = tile.rect.bottom
 
@@ -68,17 +80,18 @@ class Player(Entity):
         Handles all code relating to the movement of the player
         """
 
-        player_movement = {"horizontal": 0, "vertical": self.y_velocity}
+        self.player_movement = {"horizontal": 0, "vertical": self.y_velocity}
 
         if key_presses["a"]:
-            player_movement["horizontal"] -= self.SPEED
+            self.player_movement["horizontal"] -= self.SPEED
         if key_presses["d"]:
-            player_movement["horizontal"] += self.SPEED
+            self.player_movement["horizontal"] += self.SPEED
+
 
         if self.y_velocity < 3:
             self.y_velocity += 0.2
 
-        self.rect = self.calculate_rect(player_movement, self.rect, tiles)
+        self.rect = self.calculate_rect(self.player_movement, self.rect, tiles)
 
     @property
     def get_pos(self):
@@ -94,6 +107,19 @@ class Player(Entity):
         self.camera.x += (self.rect.x-self.camera.x-80+mx/50)/7
         self.camera.y += (self.rect.y-self.camera.y-75+my/50)/7
 
+        if self.attacking:
+            self.cooldown = 10
+            self.attacking = False
+
+        if self.cooldown > 0:
+            if self.cooldown >= 5:
+                self.spear_offset += 1
+            else:
+                self.spear_offset -= 1
+            self.cooldown -= 1
+        else:
+            self.spear_offset = 5
 
         self.animation_index = self.animate(self.walk_images, self.animation_index, 15)
         display.blit(self.walk_images[self.animation_index//15], (self.rect.x-self.camera.x, self.rect.y-self.camera.y))
+        display.blit(spear_img, (self.rect.x-self.camera.x+self.spear_offset, self.rect.y-self.camera.y+1))

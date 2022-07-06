@@ -2,10 +2,16 @@
 import pygame
 import os
 
-def load_img(path, color=(255,255,255)):
-    img = pygame.image.load(os.path.join("assets", "font", f"{path}.png"))
+def load_img(path, color=(255,255,255), base="font"):
+    img = pygame.image.load(os.path.join("assets", base, f"{path}.png"))
     img.set_colorkey(color)
     return img
+
+light_img = load_img("light", base="images")
+light_mask_full = pygame.transform.scale(light_img, (400, 300))
+light_mask_full.blit(light_mask_full, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
+
+spear_img = load_img("spear", base="images")
 
 alphabet = {
     "a": load_img("a", (0,0,0)),

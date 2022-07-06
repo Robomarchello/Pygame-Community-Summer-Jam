@@ -1,6 +1,8 @@
 import pygame
 import abc
 
+from scripts.vector2 import Vector2
+
 class Entity(abc.ABC):
     def __init__(self, x, y):
         self.x = x
@@ -20,8 +22,8 @@ class Entity(abc.ABC):
 
         position_vector = Vector2(*self.get_centered_position())
         update_position = position_vector.move_towards(x_pos, y_pos, 3)
-        self.rect.x += update_position[0] * abs(x_pos - position_vector.x) / 100 + 1.1
-        self.rect.y += update_position[1] * abs(y_pos - position_vector.y) / 100 + 1.1 
+        self.rect.x += update_position[0] 
+        self.rect.y += update_position[1]  
 
     def rot_center(self, image, angle, x, y):
         rotated_image = pygame.transform.rotate(image, angle)

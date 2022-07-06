@@ -1,5 +1,6 @@
 import pygame
 import asyncio
+import math
 
 from scripts.player import Player
 from scripts.tile import Tile
@@ -19,6 +20,8 @@ class Game:
         self.screen = pygame.display.set_mode((800, 600))
         self.display = pygame.Surface((200, 150))
         self.clock = pygame.time.Clock()
+
+        self.global_time = 0
 
         self.running = True
         pygame.display.set_caption("Pygame Community Summer Jam")
@@ -41,6 +44,9 @@ class Game:
 
         self.seed = random.randrange(-1000000, 1000000)
 
+        self.tx = 100
+        self.ty = 100
+
     def generate_map(self, noise_size, threshold):
         noise = PerlinNoise(octaves=8, seed=self.seed)
         noise = [[noise([i/noise_size[0], j/noise_size[1]]) 
@@ -52,8 +58,6 @@ class Game:
                     self.tiles.append(Tile(rect=rect, color=(100, 100, 100), image="assets/images/example.png"))
 
         for i, tile in enumerate(self.tiles):
-            if pygame.Rect(tile.rect.x + 16, tile.rect.y, 16, 16) not in self.tiles:
-                self.tiles[i].image = pygame.image.load("assets/images/dark_tile.png")
             if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
                 self.tiles[i].image = pygame.image.load("assets/images/grassy_caves/top.png")
 
@@ -66,12 +70,23 @@ class Game:
             display.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
 
 
+    def glow(self, surf, host, pos, radius, offset=0):
+        if host:
+            timing_offset = (hash(host) / 1000) % 1
+            timing_offset += 1
+        else:
+            timing_offset = 0
+        glow_width = abs(math.sin(self.global_time+offset)*25) + radius *2
+
+        glow_img = light_img
+        surf.blit(pygame.transform.scale(glow_img, (glow_width, glow_width)), (pos[0]-glow_width/2, pos[1]-glow_width/2), special_flags=pygame.BLEND_RGBA_ADD)
+
     async def main(self):
         self.generate_map((75, 50), 0.02)
         while self.running:
             self.display.fill((34, 32, 52))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
-
+            
             self.events = pygame.event.get()
             for event in self.events:
                 if event.type == pygame.QUIT:
@@ -81,12 +96,34 @@ class Game:
                     if event.key == pygame.K_SPACE:
                         if self.player.is_on_ground:
                             self.player.y_velocity -= self.player.JUMP_HEIGHT
+                            self.player.jump_count += 1
                             for i in range(15):
                                 self.particle_manager.particles.append(Particle(self.player.rect.x, self.player.rect.y, random.randrange(5, 10), random.randrange(-3, 3), 0, True, random.randrange(3, 6), True))
+                        if not self.player.is_on_ground and self.player.jump_count < 2:
+                            self.player.y_velocity -= self.player.JUMP_HEIGHT
+                            self.player.jump_count += 1
 
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        self.player.SPEED += 3
+                        if not self.player.attacking:
+                            self.player.attacking = True
+
+                if event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:
+                        self.player.SPEED -= 3
             keys = pygame.key.get_pressed()
             self.key_presses["a"] = keys[pygame.K_a]
             self.key_presses["d"] = keys[pygame.K_d]
+
+
+
+
+           # px = self.player.rect.x - self.player.camera.x
+            #px = self.player.rect.x - self.player.camera.x
+
+
+            pygame.draw.rect(self.display, (100, 100, 100), (self.tx-self.player.camera.x, self.ty-self.player.camera.y, 10, 10))
 
             self.player.handle_movement(self.key_presses, self.tiles)
             self.player.draw(self.display)
@@ -96,6 +133,15 @@ class Game:
             self.gui_manager.draw_gui_elements(self.display, self.events)
             self.particle_manager.manage_particles(self.display, self.player.camera)
 
+            
+            
+            light_surf = self.display.copy()
+            light_surf.fill((0, 0, 0))
+
+            self.glow(light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), 130)
+
+
+            self.display.blit(light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
             self.screen.blit(pygame.transform.scale(self.display, (800, 600)), (0, 0))
             pygame.display.flip()
             self.clock.tick(self.FPS)
