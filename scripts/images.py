@@ -12,6 +12,8 @@ light_mask_full = pygame.transform.scale(light_img, (400, 300))
 light_mask_full.blit(light_mask_full, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
 
 spear_img = load_img("spear", base="images")
+mushroom_img = load_img("mushroom1", base="images")
+spike_img = load_img("spike", base="images")
 
 worm_walk_imgs = [load_img("worm_walk1", base="images"), load_img("worm_walk2", base="images"), load_img("worm_walk3", base="images")]
 

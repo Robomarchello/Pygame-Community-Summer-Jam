@@ -44,6 +44,9 @@ class Portal():
 
         self.surf = pygame.Surface((52, 52), pygame.SRCALPHA)
 
+        self.offset = 0
+        self.moving_up = True
+
     def draw(self, screen, camera_pos):
         self.surf.fill((0, 0, 0, 0))
         self.posRect = self.elipseRect.copy()
@@ -70,9 +73,22 @@ class Portal():
                 particle.angle = randint(0, 360)
                 particle.dead = False
         
-        screen.blit(self.surf, self.posRect.topleft)
 
         #pygame.draw.rect(screen, (255, 0, 0), self.posRect)
+
+        if self.moving_up:
+            self.offset -= .1
+        else:
+            self.offset += .1
+
+        if self.offset <= 0:
+            self.moving_up = False
+        if self.offset >= 10:
+            self.moving_up = True
+
+
+        self.posRect = pygame.Rect(self.posRect.x, self.posRect.y+self.offset, self.posRect.width, self.posRect.height)
+        screen.blit(self.surf, self.posRect.topleft)
 
     def place_portal(self, minPos, maxPos, tileSize, tiles):
         '''
