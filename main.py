@@ -8,6 +8,7 @@ from scripts.gui import Text, GuiManager
 from scripts.images import *
 from scripts.particle import Particle, ParticleManager
 from scripts.enemy import Worm
+from scripts.portal import Portal
 
 import random
 from typing import List
@@ -49,7 +50,11 @@ class Game:
         self.ty = 100
 
         self.enemies = []
-
+        
+        self.portal = Portal([0, 0])
+        self.portal.place_portal([10, 10], [65, 40], 16, map_data["map"])
+        self.player.camera = pygame.Vector2(self.portal.position)
+        
     def generate_map(self, noise_size, threshold):
         noise = PerlinNoise(octaves=8, seed=self.seed)
         noise = [[noise([i/noise_size[0], j/noise_size[1]]) 
@@ -117,6 +122,7 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
                         self.player.SPEED -= 3
+
             keys = pygame.key.get_pressed()
             self.key_presses["a"] = keys[pygame.K_a]
             self.key_presses["d"] = keys[pygame.K_d]
@@ -129,6 +135,8 @@ class Game:
 
 
             pygame.draw.rect(self.display, (100, 100, 100), (self.tx-self.player.camera.x, self.ty-self.player.camera.y, 10, 10))
+
+            self.portal.draw(self.display, self.player.camera)
 
             self.player.handle_movement(self.key_presses, self.tiles)
             self.player.draw(self.display)
@@ -149,6 +157,7 @@ class Game:
                 enemy.draw(self.display, self.player.camera)
 
             self.display.blit(light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+            
             self.screen.blit(pygame.transform.scale(self.display, (800, 600)), (0, 0))
             pygame.display.flip()
             self.clock.tick(self.FPS)
