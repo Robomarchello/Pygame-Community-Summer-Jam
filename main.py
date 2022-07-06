@@ -7,6 +7,7 @@ from scripts.tile import Tile
 from scripts.gui import Text, GuiManager
 from scripts.images import *
 from scripts.particle import Particle, ParticleManager
+from scripts.enemy import Worm
 
 import random
 from typing import List
@@ -47,6 +48,8 @@ class Game:
         self.tx = 100
         self.ty = 100
 
+        self.enemies = []
+
     def generate_map(self, noise_size, threshold):
         noise = PerlinNoise(octaves=8, seed=self.seed)
         noise = [[noise([i/noise_size[0], j/noise_size[1]]) 
@@ -59,6 +62,8 @@ class Game:
 
         for i, tile in enumerate(self.tiles):
             if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
+                if random.randrange(0, 10) == 5:
+                    self.enemies.append(Worm(tile.rect.x, tile.rect.y-16))
                 self.tiles[i].image = pygame.image.load("assets/images/grassy_caves/top.png")
 
     def render_map(self, display: pygame.Surface, tiles: List[Tile]) -> None:
@@ -140,6 +145,8 @@ class Game:
 
             self.glow(light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), 130)
 
+            for enemy in self.enemies:
+                enemy.draw(self.display, self.player.camera)
 
             self.display.blit(light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
             self.screen.blit(pygame.transform.scale(self.display, (800, 600)), (0, 0))

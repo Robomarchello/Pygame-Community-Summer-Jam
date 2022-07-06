@@ -33,6 +33,8 @@ class Player(Entity):
         self.spear_offset = 5
         self.cooldown = 0
 
+        self.moving_right = True
+
     def get_colliding_tiles(
         self, tiles: List[Tile], player_rect: pygame.Rect
     ) -> List[Tile]:
@@ -84,8 +86,10 @@ class Player(Entity):
 
         if key_presses["a"]:
             self.player_movement["horizontal"] -= self.SPEED
+            self.moving_right = False
         if key_presses["d"]:
             self.player_movement["horizontal"] += self.SPEED
+            self.moving_right = True
 
 
         if self.y_velocity < 3:
@@ -121,7 +125,7 @@ class Player(Entity):
             self.spear_offset = 5
 
         self.animation_index = self.animate(self.walk_images, self.animation_index, 15)
-        display.blit(self.walk_images[self.animation_index//15], (self.rect.x-self.camera.x, self.rect.y-self.camera.y))
+        display.blit(pygame.transform.flip(self.walk_images[self.animation_index//15], not self.moving_right, False), (self.rect.x-self.camera.x, self.rect.y-self.camera.y))
 
 
 
@@ -134,7 +138,7 @@ class Player(Entity):
         dx, dy = mx - px, my - py
         angle = math.degrees(math.atan2(-dy, dx)) - 0
 
-        rot_image      = pygame.transform.rotate(spear_img, angle)
+        rot_image = pygame.transform.rotate(spear_img, angle).convert()
         rot_image.set_colorkey((255, 255, 255))
-        rot_image_rect = rot_image.get_rect(center = pygame.Rect(self.rect.x-self.camera.x, self.rect.y-self.camera.y, self.rect.width, self.rect.height).center)
+        rot_image_rect = rot_image.get_rect(center = pygame.Rect(self.rect.x-self.camera.x + self.spear_offset, self.rect.y-self.camera.y, self.rect.width, self.rect.height).center)
         display.blit(rot_image, rot_image_rect.topleft)

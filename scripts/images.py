@@ -13,6 +13,8 @@ light_mask_full.blit(light_mask_full, (0, 0), special_flags=pygame.BLEND_RGBA_AD
 
 spear_img = load_img("spear", base="images")
 
+worm_walk_imgs = [load_img("worm_walk1", base="images"), load_img("worm_walk2", base="images"), load_img("worm_walk3", base="images")]
+
 alphabet = {
     "a": load_img("a", (0,0,0)),
     "b": load_img("b", (0,0,0)),
