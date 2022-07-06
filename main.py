@@ -34,7 +34,7 @@ class Game:
 
         self.player = Player(100, 100)
 
-        self.gui_manager = GuiManager([Text(100, 100, "hello world", 32)]) 
+        self.gui_manager = GuiManager([]) 
 
     def generate_map(self, noise_size, threshold):
         noise = PerlinNoise(octaves=4, seed=1)
@@ -42,7 +42,8 @@ class Game:
         for j in range(noise_size[0])] for i in range(noise_size[1])]
         for y, row in enumerate(noise):
             for x, tile in enumerate(row):
-                if tile > threshold:
+
+                if tile < threshold:
                     rect = pygame.Rect(x*16, y*16, 16, 16)
                     self.tiles.append(Tile(rect=rect, color=(100, 100, 100), image="assets/images/example.png"))
 
@@ -56,7 +57,7 @@ class Game:
 
 
     async def main(self):
-        self.generate_map((50, 37), 0.07)
+        self.generate_map((75, 50), 0.01)
         while self.running:
             self.display.fill((65, 106, 163))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
