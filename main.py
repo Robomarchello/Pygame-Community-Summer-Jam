@@ -20,7 +20,7 @@ class Game:
     FPS = 60
     def __init__(self):
         self.screen = pygame.display.set_mode((800, 600))
-        self.display = pygame.Surface((200, 150))
+        self.display = pygame.Surface((800, 600))
         self.clock = pygame.time.Clock()
 
         self.global_time = 0
@@ -57,10 +57,7 @@ class Game:
         self.trails = []
         self.trail_cooldown =  0
 
-        
-        self.portal = Portal([0, 0])
-        self.portal.place_portal([10, 10], [65, 40], 16, map_data["map"])
-        self.player.camera = pygame.Vector2(self.portal.position)
+
         
     def generate_map(self, noise_size, threshold):
         noise = PerlinNoise(octaves=8, seed=self.seed)
@@ -100,6 +97,10 @@ class Game:
 
     async def main(self):
         self.generate_map((75, 50), 0.02)
+
+        self.portal = Portal([0, 0])
+        self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
+        self.player.camera = pygame.Vector2(self.portal.position)
         while self.running:
             self.display.fill((34, 32, 52))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
@@ -190,7 +191,7 @@ class Game:
                 trail[0].set_alpha(trail[3])
                 trail[3] -= 5
                 self.display.blit(trail[0], (trail[1]-self.player.camera.x, trail[2]-self.player.camera.y))
-            self.display.blit(light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+          #  self.display.blit(light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             
             self.screen.blit(pygame.transform.scale(self.display, (800, 600)), (0, 0))

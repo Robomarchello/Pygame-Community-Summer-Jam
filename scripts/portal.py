@@ -72,7 +72,7 @@ class Portal():
         
         screen.blit(self.surf, self.posRect.topleft)
 
-        pygame.draw.rect(screen, (255, 0, 0), self.posRect)
+        #pygame.draw.rect(screen, (255, 0, 0), self.posRect)
 
     def place_portal(self, minPos, maxPos, tileSize, tiles):
         '''
@@ -89,8 +89,7 @@ class Portal():
 
             collide = False
             for tile in tiles:
-                tileRect = pygame.Rect(tile[0], tile[1], tile[2], tile[3])
-                if checkRect.colliderect(tileRect):
+                if checkRect.colliderect(tile.rect):
                     randomPos = [randint(minPos[0] * tileSize, maxPos[0] * tileSize), randint(minPos[1] * tileSize, maxPos[1] * tileSize)]
                     checkRect = self.elipseRect.copy()
                     checkRect.topleft += pygame.Vector2(randomPos)
