@@ -16,7 +16,7 @@ class Game:
     FPS = 60
     def __init__(self):
         self.screen = pygame.display.set_mode((800, 600))
-        self.display = pygame.Surface((200, 150))
+        self.display = pygame.Surface((1600, 1200))
         self.clock = pygame.time.Clock()
 
         self.running = True
@@ -37,7 +37,7 @@ class Game:
         self.gui_manager = GuiManager([Text(100, 100, "hello world", 32)]) 
 
     def generate_map(self, noise_size, threshold):
-        noise = PerlinNoise(octaves=14, seed=1)
+        noise = PerlinNoise(octaves=4, seed=1)
         noise = [[noise([i/noise_size[0], j/noise_size[1]]) 
         for j in range(noise_size[0])] for i in range(noise_size[1])]
         for y, row in enumerate(noise):
@@ -56,7 +56,7 @@ class Game:
 
 
     async def main(self):
-        self.generate_map((100, 75), 0.07)
+        self.generate_map((50, 37), 0.07)
         while self.running:
             self.display.fill((65, 106, 163))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
