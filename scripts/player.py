@@ -122,4 +122,19 @@ class Player(Entity):
 
         self.animation_index = self.animate(self.walk_images, self.animation_index, 15)
         display.blit(self.walk_images[self.animation_index//15], (self.rect.x-self.camera.x, self.rect.y-self.camera.y))
-        display.blit(spear_img, (self.rect.x-self.camera.x+self.spear_offset, self.rect.y-self.camera.y+1))
+
+
+
+        mx, my = pygame.mouse.get_pos()
+        mx /= 4
+        my /= 4
+        px = pygame.Rect(self.rect.x-self.camera.x, self.rect.y-self.camera.y, self.rect.width, self.rect.height).centerx
+        py = pygame.Rect(self.rect.x-self.camera.x, self.rect.y-self.camera.y, self.rect.width, self.rect.height).centery
+       
+        dx, dy = mx - px, my - py
+        angle = math.degrees(math.atan2(-dy, dx)) - 0
+
+        rot_image      = pygame.transform.rotate(spear_img, angle)
+        rot_image.set_colorkey((255, 255, 255))
+        rot_image_rect = rot_image.get_rect(center = pygame.Rect(self.rect.x-self.camera.x, self.rect.y-self.camera.y, self.rect.width, self.rect.height).center)
+        display.blit(rot_image, rot_image_rect.topleft)
