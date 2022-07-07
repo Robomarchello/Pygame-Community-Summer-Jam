@@ -9,6 +9,7 @@ from scripts.images import *
 from scripts.particle import Particle, ParticleManager
 from scripts.enemy import Worm
 from scripts.portal import Portal
+from scripts.dimension_transition import dimTrans
 
 import random
 from typing import List
@@ -60,7 +61,6 @@ class Game:
 
         self.decorations = []
 
-
         
     def generate_map(self, noise_size, threshold):
         noise = PerlinNoise(octaves=8, seed=self.seed)
@@ -110,6 +110,8 @@ class Game:
         self.portal = Portal([0, 0])
         self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
         self.player.camera = pygame.Vector2(self.portal.position)
+
+        self.dimTrans = dimTrans(pygame.Rect(0, 0, 200, 150))
         while self.running:
             self.display.fill((34, 32, 52))
             self.minimap.fill((0, 0, 0))
@@ -203,6 +205,13 @@ class Game:
                 trail[3] -= 5
                 self.display.blit(trail[0], (trail[1]-self.player.camera.x, trail[2]-self.player.camera.y))
             self.display.blit(light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+
+            #transition between dimensions
+            if self.player.rect.colliderect(self.portal.posRect) and not self.dimTrans.active:
+                self.dimTrans.activize()
+                
+            self.dimTrans.draw(self.display)
+
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))

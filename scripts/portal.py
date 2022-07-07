@@ -74,7 +74,6 @@ class Portal():
                 particle.dead = False
         
 
-        #pygame.draw.rect(screen, (255, 0, 0), self.posRect)
 
         if self.moving_up:
             self.offset -= .1
