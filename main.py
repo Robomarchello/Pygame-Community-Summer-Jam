@@ -63,6 +63,11 @@ class Game:
 
         
     def generate_map(self, noise_size, threshold):
+        self.seed = random.randrange(-1000000, 1000000)
+        self.tiles = []
+        self.decorations = []
+        self.enemies = []
+
         noise = PerlinNoise(octaves=8, seed=self.seed)
         noise = [[noise([i/noise_size[0], j/noise_size[1]]) 
         for j in range(noise_size[0])] for i in range(noise_size[1])]
@@ -209,7 +214,14 @@ class Game:
             #transition between dimensions
             if self.player.rect.colliderect(self.portal.posRect) and not self.dimTrans.active:
                 self.dimTrans.activize()
-                
+            
+            if self.dimTrans.change_scene:
+                self.dimTrans.change_scene = False
+                self.generate_map((75, 50), 0.02)
+                self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
+
+                #self.player.rect.topleft = (300, 400)
+
             self.dimTrans.draw(self.display)
 
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
