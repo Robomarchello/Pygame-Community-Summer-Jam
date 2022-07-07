@@ -5,7 +5,7 @@ from scripts.entity import Entity
 from scripts.images import *
 
 class Worm(Entity):
-    def __init__(self, x, y):
+    def __init__(self, x, y, tile):
         super().__init__(x, y)
 
         self.looking_right = True
@@ -19,6 +19,14 @@ class Worm(Entity):
         self.has_died = False
         self.wait_time = 10
         self.has_reset = False
+        self.tile = tile
+
+        self.y_vel = 4
+
+        self.displaced = False
+
+    def __repr__(self):
+        return "Worm"
 
     def move(self):
         if random.randrange(0, 15) == 5:
@@ -36,7 +44,13 @@ class Worm(Entity):
         self.move()
         img = pygame.transform.flip(worm_walk_imgs[0], not self.looking_right, False).convert()
         img.set_colorkey((255, 255, 255))
-
+        if self.tile not in game.tiles:
+            self.x += 4
+            self.y -= self.y_vel
+            self.y_vel -= 1
+            self.displaced = True
+        else:
+            self.displaced = False
 
         if self.health <= 0:
             if not self.has_died:

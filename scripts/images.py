@@ -1,9 +1,11 @@
 
 import pygame
 import os
+from scripts.display import screen
+
 
 def load_img(path, color=(255,255,255), base="font"):
-    img = pygame.image.load(os.path.join("assets", base, f"{path}.png"))
+    img = pygame.image.load(os.path.join("assets", base, f"{path}.png")).convert()
     img.set_colorkey(color)
     return img
 
@@ -14,6 +16,7 @@ light_mask_full.blit(light_mask_full, (0, 0), special_flags=pygame.BLEND_RGBA_AD
 spear_img = load_img("gun", base="images")
 mushroom_img = load_img("mushroom1", base="images")
 spike_img = load_img("spike", base="images")
+bullet_img = load_img("bullet", base="images")
 
 worm_walk_imgs = [load_img("worm_walk1", base="images"), load_img("worm_walk2", base="images"), load_img("worm_walk3", base="images")]
 
