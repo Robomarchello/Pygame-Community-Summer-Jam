@@ -73,8 +73,6 @@ class Portal():
                 particle.angle = randint(0, 360)
                 particle.dead = False
         
-
-
         if self.moving_up:
             self.offset -= .1
         else:

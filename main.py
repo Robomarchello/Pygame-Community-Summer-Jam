@@ -93,14 +93,13 @@ class Game:
                     rect = pygame.Rect(x*16, y*16, 16, 16)
                     self.tiles.append(Tile(rect=rect, color=(100, 100, 100), image="assets/images/example.png"))
                 
-                    
         for i, tile in enumerate(self.tiles):
             if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
                 if random.randrange(0, 10) == 5:
                     self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
                 if random.randrange(0, 30) == 5:
                     self.decorations.append([mushroom_img, tile.rect.x, tile.rect.y-16, tile])
-                self.tiles[i].image = pygame.image.load("assets/images/grassy_caves/top.png").convert()
+                self.tiles[i].image = grassy_top
             if pygame.Rect(tile.rect.x, tile.rect.y + 16, 16, 16) not in self.tiles:
                 if random.randrange(0, 10) == 5:
                     self.decorations.append([spike_img, tile.rect.x, tile.rect.y+16, tile])
@@ -109,41 +108,37 @@ class Game:
         """
         Renders the games tiles
         """
-        for i,tile in enumerate(tiles):
-            display.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
-            pygame.draw.rect(self.minimap, (255, 255, 255), (tile.rect.x, tile.rect.y, 16, 16))
-            #self.minimap.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
-            for bullet in self.bullets:
-                if pygame.Rect(bullet.x, bullet.y, 4, 4).colliderect(
-                    pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)
-                ):  
-                    for i in range(4):
-                        self.explosions.append([tile.rect.x, tile.rect.y+random.randrange(-7, 7), random.randrange(-4, 4),random.randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
-                    self.bullets.remove(bullet)
-                
+        for tile in self.tiles:
+            if (math.dist([self.player.rect.x, self.player.rect.y], [tile.rect.x, tile.rect.y]) < 150):
+                display.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
+                pygame.draw.rect(self.minimap, (255, 255, 255), (tile.rect.x, tile.rect.y, 16, 16))
+                #self.minimap.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
+                for bullet in self.bullets:
+                    if pygame.Rect(bullet.x, bullet.y, 4, 4).colliderect(
+                        pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)
+                    ):  
+                        for i in range(4):
+                            self.explosions.append([tile.rect.x, tile.rect.y+random.randrange(-7, 7), random.randrange(-4, 4),random.randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
+                        self.bullets.remove(bullet)
+                    
+                for bomb in self.bombs:
+                    if pygame.Rect(bomb.x-self.player.camera.x+2, bomb.y-self.player.camera.y+2, 6, 6).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
+                        bomb.should_move_down = False
+                        if not bomb.detonate:
+                            bomb.tiles_to_remove.append(self.tiles.index(tile))
+                            bomb.tiles_to_remove.append(self.tiles.index(tile)-1)
+                            bomb.tiles_to_remove.append(self.tiles.index(tile)+1)
 
-            for bomb in self.bombs:
-                if pygame.Rect(bomb.x-self.player.camera.x+2, bomb.y-self.player.camera.y+2, 6, 6).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
-                    bomb.should_move_down = False
-                    if not bomb.detonate:
-                        bomb.tiles_to_remove.append(self.tiles.index(tile))
-                        bomb.tiles_to_remove.append(self.tiles.index(tile)-1)
-                        bomb.tiles_to_remove.append(self.tiles.index(tile)+1)
+                            bomb.countdown = 40
 
-                        bomb.countdown = 40
+                        bomb.detonate = True
 
-                    bomb.detonate = True
+                for enemy in self.enemies:
+                    if enemy.displaced:
+                        if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
+                            enemy.tile = tile
 
-            for enemy in self.enemies:
-                if enemy.displaced:
-                    if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
-                        enemy.tile = tile
     def glow(self, surf, host, pos, radius, offset=0):
-        if host:
-            timing_offset = (hash(host) / 1000) % 1
-            timing_offset += 1
-        else:
-            timing_offset = 0
         glow_width = abs(math.sin(self.global_time+offset)*25) + radius *2
 
         glow_img = light_img
@@ -157,6 +152,8 @@ class Game:
         self.player.camera = pygame.Vector2(self.portal.position)
 
         self.dimTrans = dimTrans(pygame.Rect(0, 0, 200, 150))
+        light_surf = self.display.copy()
+
         while self.running:
 
             self.display.fill((34, 32, 52))
@@ -262,8 +259,6 @@ class Game:
             self.gui_manager.draw_gui_elements(self.display, self.events)
             self.particle_manager.manage_particles(self.display, self.player.camera)
 
-
-            light_surf = self.display.copy()
             light_surf.fill((0, 0, 0))
 
             self.glow(light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), 130)
@@ -274,8 +269,6 @@ class Game:
                             self.player.rect.height).colliderect(
                             pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 32, 32)
                         ):
-
-
                             enemy.health -= 1
                     enemy.draw(self.display, self.player.camera, self.player, self)
             for decoration in self.decorations:
@@ -314,7 +307,6 @@ class Game:
                     for i in range(200):
                         self.explosions.append([bomb.x, bomb.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
                     for tile in bomb.tiles_to_remove:
-                        print(tile)
                         self.tiles.pop(tile)
                     self.bombs.remove(bomb)
 
@@ -330,15 +322,12 @@ class Game:
                 self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
                 self.player.rect.topleft = (400, 300)
 
-
-
             self.dimTrans.draw(self.display)
 
             for bullet in self.bullets:
                 bullet.main(self.display)        
 
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
-            
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))
 
 
