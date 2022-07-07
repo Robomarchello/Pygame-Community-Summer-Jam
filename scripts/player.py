@@ -19,6 +19,9 @@ class Player(Entity):
         self.rect = pygame.Rect(self.x, self.y, 16, 16)
 
         self.walk_images = [self.load_image("player_walk1"), self.load_image("player_walk2"), self.load_image("player_walk3")]
+        self.idle_images = [
+            self.load_image("player_idle1"), self.load_image("player_idle2"), self.load_image("player_idle1")
+        ]
         self.animation_index = 0
         
         self.camera = pygame.math.Vector2()
@@ -38,6 +41,8 @@ class Player(Entity):
         self.dash = 0
         self.rotation = 0
         self.double_jumping = False
+
+        self.moving = False
 
     def get_colliding_tiles(
         self, tiles: List[Tile], player_rect: pygame.Rect
@@ -91,9 +96,11 @@ class Player(Entity):
         self.player_movement = {"horizontal": 0, "vertical": self.y_velocity}
 
         if key_presses["a"]:
+            self.moving = True
             self.player_movement["horizontal"] -= self.SPEED
             self.moving_right = False
         if key_presses["d"]:
+            self.moving = True
             self.player_movement["horizontal"] += self.SPEED
             self.moving_right = True
 
@@ -103,9 +110,10 @@ class Player(Entity):
 
         self.rect = self.calculate_rect(self.player_movement, self.rect, tiles)
 
-    @property
     def get_pos(self):
         return (self.x-self.camera.x, self.y-self.camera.y)
+
+        
         
 
     def draw(self, display) -> None:
@@ -131,13 +139,13 @@ class Player(Entity):
             self.spear_offset = 5
 
         if self.double_jumping:
-            print("yes")
             self.rotation += 10
 
         self.animation_index = self.animate(self.walk_images, self.animation_index, 15)
-        display.blit(pygame.transform.rotate(pygame.transform.flip(self.walk_images[self.animation_index//15], not self.moving_right, False), self.rotation), (self.rect.x-self.camera.x, self.rect.y-self.camera.y))
-
-
+        if self.moving:
+            display.blit(pygame.transform.rotate(pygame.transform.flip(self.walk_images[self.animation_index//15], not self.moving_right, False), self.rotation), (self.rect.x-self.camera.x, self.rect.y-self.camera.y))
+        else:
+            display.blit(pygame.transform.rotate(pygame.transform.flip(self.idle_images[self.animation_index//15], not self.moving_right, False), self.rotation), (self.rect.x-self.camera.x, self.rect.y-self.camera.y))
 
         mx, my = pygame.mouse.get_pos()
         mx /= 4
@@ -150,5 +158,7 @@ class Player(Entity):
 
         rot_image = pygame.transform.rotate(spear_img, angle).convert()
         rot_image.set_colorkey((255, 255, 255))
-        rot_image_rect = rot_image.get_rect(center = pygame.Rect(self.rect.x-self.camera.x + self.spear_offset, self.rect.y-self.camera.y, self.rect.width, self.rect.height).center)
+        rot_image_rect = rot_image.get_rect()
+        rot_image_rect.center = pygame.Rect(self.rect.x-self.camera.x, self.rect.y-self.camera.y + 2, self.rect.width, self.rect.height).center
         display.blit(rot_image, rot_image_rect.topleft)
+        self.moving = False

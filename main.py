@@ -21,7 +21,7 @@ class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((800, 600))
         self.display = pygame.Surface((200, 150))
-        self.minimap = pygame.Surface((1200, 800))
+        self.minimap = pygame.Surface((1200, 1000))
         self.clock = pygame.time.Clock()
 
         self.global_time = 0
@@ -68,7 +68,7 @@ class Game:
         for j in range(noise_size[0])] for i in range(noise_size[1])]
         for y, row in enumerate(noise):
             for x, tile in enumerate(row):
-                if tile > threshold:
+                if tile > threshold and y > 4:
                     rect = pygame.Rect(x*16, y*16, 16, 16)
                     self.tiles.append(Tile(rect=rect, color=(100, 100, 100), image="assets/images/example.png"))
 
@@ -129,6 +129,7 @@ class Game:
                             for i in range(15):
                                 self.particle_manager.particles.append(Particle(self.player.rect.x, self.player.rect.y, random.randrange(5, 10), random.randrange(-3, 3), 0, True, random.randrange(3, 6), True))
                         if not self.player.is_on_ground and self.player.jump_count < 2:
+                            self.player.y_velocity = 1
                             self.player.y_velocity -= self.player.JUMP_HEIGHT 
                             self.player.jump_count += 1
                             self.player.double_jumping = True
