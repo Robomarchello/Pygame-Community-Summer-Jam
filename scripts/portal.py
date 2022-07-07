@@ -117,3 +117,17 @@ class Portal():
                 self.posRect.topleft = randomPos
                 
                 break
+
+    def player_attract(self, player):
+        '''attracts the player to the portal'''
+        minDist = 100
+        playerCenter = pygame.Vector2(player.rect.center - player.camera)
+        portalCenter = pygame.Vector2(self.posRect.center)
+        distance = playerCenter.distance_to(portalCenter)
+            
+        if distance < minDist:
+            direction = playerCenter - portalCenter
+            
+            player.rect.topleft += direction.normalize() * -2
+            
+                

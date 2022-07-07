@@ -170,6 +170,8 @@ class Game:
                 
 
             self.portal.draw(self.display, self.player.camera)
+            
+            self.portal.player_attract(self.player)
             self.portal.draw(self.minimap, pygame.math.Vector2(0, 0))
 
             self.player.handle_movement(self.key_presses, self.tiles)
@@ -219,8 +221,9 @@ class Game:
                 self.dimTrans.change_scene = False
                 self.generate_map((75, 50), 0.02)
                 self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
+                self.player.rect.topleft = (400, 300)
 
-                #self.player.rect.topleft = (300, 400)
+
 
             self.dimTrans.draw(self.display)
 

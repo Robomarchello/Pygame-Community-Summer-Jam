@@ -13,7 +13,7 @@ class Player(Entity):
 
     def __init__(self, x, y) -> None:
         super().__init__(x, y)
-
+         
         self.y_velocity = 3
         self.is_on_ground = False
         self.rect = pygame.Rect(self.x, self.y, 16, 16)

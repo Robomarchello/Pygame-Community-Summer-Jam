@@ -85,8 +85,3 @@ class dimTrans:
         self.change_scene = False
         self.circlesSpawned = 0
 
-#self.dimTrans = dimTrans(pygame.Rect(0, 0, 200, 150))
-#            if self.dimTrans.change_scene:
-#                screen.fill((255, 0, 0))
-#
-#            self.dimTrans.draw(screen)
