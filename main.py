@@ -144,7 +144,7 @@ class Game:
         glow_img = light_img
         surf.blit(pygame.transform.scale(glow_img, (glow_width, glow_width)), (pos[0]-glow_width/2, pos[1]-glow_width/2), special_flags=pygame.BLEND_RGBA_ADD)
 
-    async def main(self):
+    def main(self):
         self.generate_map((75, 50), 0.02)
 
         self.portal = Portal([0, 0])
@@ -335,7 +335,6 @@ class Game:
 
             pygame.display.flip()
             self.clock.tick(self.FPS)
-            await asyncio.sleep(0)
 
     def run(self):
-        asyncio.run(self.main())
+        self.main()

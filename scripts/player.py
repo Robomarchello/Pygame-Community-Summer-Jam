@@ -52,10 +52,10 @@ class Player(Entity):
         """
         return_tiles = []
         for tile in tiles:
-            if tile.collision(player_rect):
+            if (math.dist([self.rect.x, self.rect.y], [tile.rect.x, tile.rect.y]) < 25):
                 return_tiles.append(tile)
 
-        return tiles
+        return return_tiles
 
     def calculate_rect(
         self, movement: dict, player_rect: pygame.Rect, map_tiles: List[Tile]
