@@ -14,7 +14,7 @@ from scripts.dimension_transition import dimTrans
 from scripts.bullet import Bullet
 from scripts.display import screen
 from scripts.bomb import Bomb
-
+from scripts.enemy_bullet import EnemyBullet
 
 from OpenGL.GL import *
 
@@ -56,10 +56,6 @@ class Game:
         self.gui_manager = GuiManager([]) 
 
         self.seed = random.randrange(-1000000, 1000000)
-
-        self.tx = 100
-        self.ty = 100
-
         self.enemies = []
 
         self.scale_x = 800
@@ -73,11 +69,12 @@ class Game:
 
         self.clicking = False
         self.shoot_cooldown = 0
-
         self.explosion_effects = []
         self.explosions = []
         self.bombs = []
-        
+        self.enemy_bullets = []
+        random.seed(self.seed)
+    
 
     def generate_map(self, noise_size, threshold):
         self.seed = random.randrange(-1000000, 1000000)
@@ -275,9 +272,24 @@ class Game:
                             self.player.rect.height).colliderect(
                             pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 32, 32)
                         ):
-
-
+                            
                             enemy.health -= 1
+
+                    if enemy.bullet_cooldown <= 0 and math.dist([self.player.rect.x, self.player.rect.y], [enemy.x, enemy.y]) < 50:
+                        x = enemy.x-self.player.camera.x
+                        y = enemy.y-self.player.camera.y
+                        px = self.player.rect.x-self.player.camera.x+random.randrange(-30, 30)
+                        py = self.player.rect.y-self.player.camera.y+random.randrange(-30, 30)
+
+
+                        angle = math.atan2(y-py, x-px)
+                        x_vel = math.cos(angle) * 1
+                        y_vel = math.sin(angle) * 1
+
+                        self.enemy_bullets.append([enemy.x, enemy.y, [x_vel, y_vel], 400])
+                        enemy.bullet_cooldown = 40
+                    else:
+                        enemy.bullet_cooldown -= 1    
                     enemy.draw(self.display, self.player.camera, self.player, self)
 
             self.render_map(self.display, self.tiles)
@@ -339,6 +351,17 @@ class Game:
                             pass
                     self.bombs.remove(bomb)
 
+            for bullet in self.enemy_bullets:
+                if bullet[3] <= 0:
+                    self.enemy_bullets.remove(bullet)
+                bullet[0] -= bullet[2][0]
+                bullet[1] -= bullet[2][1]
+                bullet[3] -= 1
+                self.glow(light_surf, self.player, (bullet[0]-self.player.camera.x, bullet[1]-self.player.camera.y), 13)
+
+                pygame.draw.circle(self.display, (154, 40, 53), (bullet[0]-self.player.camera.x, bullet[1]-self.player.camera.y), 4)
+
+
             self.display.blit(light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
 
             #transition between dimensions
@@ -362,9 +385,6 @@ class Game:
 
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))
-
-
-         
 
             pygame.display.update()
             self.clock.tick(self.FPS)

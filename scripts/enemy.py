@@ -25,6 +25,8 @@ class Worm(Entity):
 
         self.displaced = False
 
+        self.bullet_cooldown = 0
+
     def __repr__(self):
         return "Worm"
 
