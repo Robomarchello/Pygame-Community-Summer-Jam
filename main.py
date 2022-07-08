@@ -144,6 +144,11 @@ class Game:
                             for _tile in tile.neighbours:
                                 try:
                                     bomb.tiles_to_remove.append(_tile)
+                                    for __tile in self.tiles[self.tiles.index(_tile)].neighbours:
+                                        try:
+                                            bomb.tiles_to_remove.append(__tile)
+                                        except ValueError:
+                                            pass
                                 except ValueError:
                                     pass
                             bomb.countdown = 40
