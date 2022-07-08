@@ -15,12 +15,19 @@ from scripts.bullet import Bullet
 from scripts.display import screen
 from scripts.bomb import Bomb
 from scripts.enemy_bullet import EnemyBullet
+from scripts.background_scroll import BackGround
 
 import random
 from typing import List
 
 import json
-from perlin_noise.noise import PerlinNoise
+
+import platform
+
+if platform.platform() == 'emscripten':
+    from perlin_noise.noise import PerlinNoise
+else:
+    from perlin_noise import PerlinNoise
 
 
 class Game:
@@ -31,6 +38,7 @@ class Game:
         self.minimap = pygame.Surface((1200, 1000))
         self.background = pygame.Surface((200, 150), pygame.OPENGL)
         self.clock = pygame.time.Clock()
+
 
         self.global_time = 0
 
@@ -72,6 +80,9 @@ class Game:
         self.bombs = []
         self.enemy_bullets = []
         random.seed(self.seed)
+
+        self.backgroundImage = pygame.image.load('assets/images/backgrounds/background.png').convert()
+        self.BackGround = BackGround(self.backgroundImage, pygame.Vector2(0, 0), self.player)
 
         self.screen_shake = 0
     
@@ -187,6 +198,8 @@ class Game:
             pygame.display.set_caption(f"{self.clock.get_fps()}")
 
             self.display.blit(pygame.transform.scale(self.background, (self.scale_x, self.scale_y)), (0, 0))
+
+            self.BackGround.draw(self.display)
 
             self.global_time += 1
             display = self.display
