@@ -20,7 +20,7 @@ class Fly(Entity):
     def draw(self, display, camera, player, game):
         if math.dist([self.x, self.y], [player.rect.x, player.rect.y]) < 100:
             self.rect = pygame.Rect(self.x-camera.x, self.y-camera.y, 16, 16)
-            movement_vector = self.move_towards(player.rect.x-camera.x, player.rect.y-camera.y, 1)
+            movement_vector = self.move_towards(player.rect.x-camera.x + random.randrange(-40, 40), player.rect.y-camera.y + random.randrange(-40, 40), 1)
             self.x += movement_vector[0] 
             self.y += movement_vector[1] 
 
