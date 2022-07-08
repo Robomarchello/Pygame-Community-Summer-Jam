@@ -138,13 +138,12 @@ class Game:
                     if pygame.Rect(bomb.x-self.player.camera.x+2, bomb.y-self.player.camera.y+2, 6, 6).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
                         bomb.should_move_down = False
                         if not bomb.detonate:
-                            bomb.tiles_to_remove.append(self.tiles.index(tile))
-                            bomb.tiles_to_remove.append(self.tiles.index(tile)-1)
-                            bomb.tiles_to_remove.append(self.tiles.index(tile)+1)
+
+                            bomb.tiles_to_remove.append(tile)
 
                             for _tile in tile.neighbours:
                                 try:
-                                    bomb.tiles_to_remove.append(self.tiles.index(_tile))
+                                    bomb.tiles_to_remove.append(_tile)
                                 except ValueError:
                                     pass
                             bomb.countdown = 40
@@ -329,7 +328,10 @@ class Game:
                     for i in range(200):
                         self.explosions.append([bomb.x, bomb.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
                     for tile in bomb.tiles_to_remove:
-                        self.tiles.pop(tile)
+                        try:
+                            self.tiles.remove(tile)
+                        except ValueError:
+                            pass
                     self.bombs.remove(bomb)
 
             self.display.blit(light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
