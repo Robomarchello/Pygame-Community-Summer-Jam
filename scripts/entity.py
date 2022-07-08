@@ -15,15 +15,15 @@ class Entity(abc.ABC):
 
         return self.rect.center
 
-    def move_towards(self, x_pos: int, y_pos: int) -> None:
+    def move_towards(self, x_pos: int, y_pos: int, speed:int) -> None:
         """
         Moves entity toward a give position
         """
 
         position_vector = Vector2(*self.get_centered_position())
-        update_position = position_vector.move_towards(x_pos, y_pos, 3)
-        self.rect.x += update_position[0] 
-        self.rect.y += update_position[1]  
+        update_position = position_vector.move_towards(x_pos, y_pos, speed)
+
+        return update_position
 
     def rot_center(self, image, angle, x, y):
         rotated_image = pygame.transform.rotate(image, angle)

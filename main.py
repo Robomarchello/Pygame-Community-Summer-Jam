@@ -8,7 +8,7 @@ from scripts.tile import Tile
 from scripts.gui import Text, GuiManager
 from scripts.images import *
 from scripts.particle import Particle, ParticleManager
-from scripts.enemy import Worm
+from scripts.enemy import Worm, Fly
 from scripts.portal import Portal
 from scripts.dimension_transition import dimTrans
 from scripts.bullet import Bullet
@@ -74,6 +74,8 @@ class Game:
         self.bombs = []
         self.enemy_bullets = []
         random.seed(self.seed)
+
+        self.screen_shake = 0
     
 
     def generate_map(self, noise_size, threshold):
@@ -107,6 +109,9 @@ class Game:
                 if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
                     if random.randrange(0, 10) == 5:
                         self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
+                    if random.randrange(0, 15) == 5:
+                        self.enemies.append(Fly(tile.rect.x, tile.rect.y- 16))
+                        
                     if random.randrange(0, 30) == 5:
                         self.decorations.append([mushroom_img, tile.rect.x, tile.rect.y-16, tile])
                     self.tiles[i].image = grassy_top
@@ -127,6 +132,7 @@ class Game:
                     if pygame.Rect(bullet.x, bullet.y, 4, 4).colliderect(
                         pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)
                     ):  
+                        self.screen_shake += 1
                         for i in range(4):
                             self.explosions.append([tile.rect.x, tile.rect.y+random.randrange(-7, 7), random.randrange(-4, 4),random.randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
                         self.bullets.remove(bullet)
@@ -153,9 +159,10 @@ class Game:
                         bomb.detonate = True
 
                 for enemy in self.enemies:
-                    if enemy.displaced:
-                        if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
-                            enemy.tile = tile
+                    if str(enemy) == "Worm":
+                        if enemy.displaced:
+                            if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
+                                enemy.tile = tile
 
     def glow(self, surf, host, pos, radius, offset=0):
         glow_width = abs(math.sin(offset)*25) + radius *2
@@ -302,12 +309,6 @@ class Game:
             self.glow(light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), 130)
             for enemy in self.enemies:  
                 if str(enemy) != "Worm":
-                    if self.player.cooldown != 0:
-                        if pygame.Rect(self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y, self.player.rect.width, 
-                            self.player.rect.height).colliderect(
-                            pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 32, 32)
-                        ):
-                            enemy.health -= 1
                     enemy.draw(self.display, self.player.camera, self.player, self)
             for decoration in self.decorations:
                 if decoration[3] in self.tiles:
@@ -342,6 +343,7 @@ class Game:
                 if bomb.countdown > 0:
                     bomb.countdown -= 1
                 if bomb.countdown <= 0 and not bomb.should_move_down:
+                    self.screen_shake += 10
                     for i in range(200):
                         self.explosions.append([bomb.x, bomb.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
                     for tile in bomb.tiles_to_remove:
@@ -382,6 +384,15 @@ class Game:
             color = abs(math.sin(self.global_time / 100)) 
             _c = color * 10
             self.background.fill((_c, _c, _c))
+
+
+
+            if self.screen_shake:
+                    self.player.camera.x += random.randint(0, 8) - 4
+                    self.player.camera.y += random.randint(0, 8) - 4
+
+            if self.screen_shake > 0:
+                    self.screen_shake -= 1
 
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))

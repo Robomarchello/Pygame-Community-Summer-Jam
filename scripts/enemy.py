@@ -1,8 +1,31 @@
 import pygame
 import random
+import math
 
 from scripts.entity import Entity
 from scripts.images import *
+
+class Fly(Entity):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+
+        self.images = [self.load_image("fly1"), self.load_image("fly2"), self.load_image("fly3")]
+        self.animation_index = 0
+        
+        self.rect = None
+
+    def __repr__(self):
+        return "Fly"
+
+    def draw(self, display, camera, player, game):
+        if math.dist([self.x, self.y], [player.rect.x, player.rect.y]) < 100:
+            self.rect = pygame.Rect(self.x-camera.x, self.y-camera.y, 16, 16)
+            movement_vector = self.move_towards(player.rect.x-camera.x, player.rect.y-camera.y, 1)
+            self.x += movement_vector[0] 
+            self.y += movement_vector[1] 
+
+        self.animation_index = self.animate(self.images, self.animation_index, 15)
+        display.blit(self.images[self.animation_index // 15], (self.x - camera.x, self.y - camera.y))
 
 class Worm(Entity):
     def __init__(self, x, y, tile):
