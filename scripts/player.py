@@ -52,8 +52,9 @@ class Player(Entity):
         """
         return_tiles = []
         for tile in tiles:
-            if (math.dist([self.rect.x, self.rect.y], [tile.rect.x, tile.rect.y]) < 25):
-                return_tiles.append(tile)
+            if tile._collision:
+                if (math.dist([self.rect.x, self.rect.y], [tile.rect.x, tile.rect.y]) < 25):
+                    return_tiles.append(tile)
 
         return return_tiles
 

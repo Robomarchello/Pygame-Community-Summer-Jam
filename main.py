@@ -31,7 +31,7 @@ class Game:
         self.screen = screen
         self.display = pygame.Surface((200, 150))
         self.minimap = pygame.Surface((1200, 1000))
-        self.background = pygame.Surface((200, 150))
+        self.background = pygame.Surface((200, 150), pygame.OPENGL)
         self.clock = pygame.time.Clock()
 
         self.global_time = 0
@@ -77,6 +77,7 @@ class Game:
         self.explosion_effects = []
         self.explosions = []
         self.bombs = []
+        
 
     def generate_map(self, noise_size, threshold):
         self.seed = random.randrange(-1000000, 1000000)
@@ -90,19 +91,31 @@ class Game:
         for y, row in enumerate(noise):
             for x, tile in enumerate(row):
                 if tile > threshold and y > 4:
-                    rect = pygame.Rect(x*16, y*16, 16, 16)
-                    self.tiles.append(Tile(rect=rect, color=(100, 100, 100), image="assets/images/example.png"))
-                
+                    if tile < threshold + 0.4:
+                        self.tiles.append(Tile((x*16, y*16, 16, 16), (100, 100, 100)))
+
+
         for i, tile in enumerate(self.tiles):
-            if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
-                if random.randrange(0, 10) == 5:
-                    self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
-                if random.randrange(0, 30) == 5:
-                    self.decorations.append([mushroom_img, tile.rect.x, tile.rect.y-16, tile])
-                self.tiles[i].image = grassy_top
-            if pygame.Rect(tile.rect.x, tile.rect.y + 16, 16, 16) not in self.tiles:
-                if random.randrange(0, 10) == 5:
-                    self.decorations.append([spike_img, tile.rect.x, tile.rect.y+16, tile])
+            if tile._collision:
+                if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) in self.tiles:
+                    tile.neighbours.append(pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16)) #top
+                if pygame.Rect(tile.rect.x, tile.rect.y + 16, 16, 16) in self.tiles:
+                    tile.neighbours.append(pygame.Rect(tile.rect.x, tile.rect.y + 16, 16, 16)) #bottom
+                if pygame.Rect(tile.rect.x + 16, tile.rect.y, 16, 16) in self.tiles:
+                    tile.neighbours.append(pygame.Rect(tile.rect.x + 16, tile.rect.y, 16, 16)) #right
+                if pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16) in self.tiles:
+                    tile.neighbours.append(pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16)) #left
+
+
+                if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
+                    if random.randrange(0, 10) == 5:
+                        self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
+                    if random.randrange(0, 30) == 5:
+                        self.decorations.append([mushroom_img, tile.rect.x, tile.rect.y-16, tile])
+                    self.tiles[i].image = grassy_top
+                if pygame.Rect(tile.rect.x, tile.rect.y + 16, 16, 16) not in self.tiles:
+                    if random.randrange(0, 10) == 5:
+                        self.decorations.append([spike_img, tile.rect.x, tile.rect.y+16, tile])
                     
     def render_map(self, display: pygame.Surface, tiles: List[Tile]) -> None:
         """
@@ -129,6 +142,11 @@ class Game:
                             bomb.tiles_to_remove.append(self.tiles.index(tile)-1)
                             bomb.tiles_to_remove.append(self.tiles.index(tile)+1)
 
+                            for _tile in tile.neighbours:
+                                try:
+                                    bomb.tiles_to_remove.append(self.tiles.index(_tile))
+                                except ValueError:
+                                    pass
                             bomb.countdown = 40
 
                         bomb.detonate = True
@@ -139,7 +157,7 @@ class Game:
                             enemy.tile = tile
 
     def glow(self, surf, host, pos, radius, offset=0):
-        glow_width = abs(math.sin(self.global_time+offset)*25) + radius *2
+        glow_width = abs(math.sin(offset)*25) + radius *2
 
         glow_img = light_img
         surf.blit(pygame.transform.scale(glow_img, (glow_width, glow_width)), (pos[0]-glow_width/2, pos[1]-glow_width/2), special_flags=pygame.BLEND_RGBA_ADD)
@@ -153,6 +171,7 @@ class Game:
 
         self.dimTrans = dimTrans(pygame.Rect(0, 0, 200, 150))
         light_surf = self.display.copy()
+        
 
         while self.running:
 
@@ -161,6 +180,9 @@ class Game:
             self.minimap.set_colorkey((0, 0,0))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
 
+            self.display.blit(pygame.transform.scale(self.background, (self.scale_x, self.scale_y)), (0, 0))
+
+            self.global_time += 1
             display = self.display
             
             self.events = pygame.event.get()
@@ -327,13 +349,17 @@ class Game:
             for bullet in self.bullets:
                 bullet.main(self.display)        
 
+            color = abs(math.sin(self.global_time / 100)) 
+            _c = color * 10
+            self.background.fill((_c, _c, _c))
+
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))
 
 
          
 
-            pygame.display.flip()
+            pygame.display.update()
             self.clock.tick(self.FPS)
 
     def run(self):

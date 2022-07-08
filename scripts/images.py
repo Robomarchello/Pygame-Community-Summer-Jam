@@ -18,6 +18,12 @@ spike_img = load_img("spike", base="images")
 bullet_img = load_img("bullet", base="images")
 grassy_top = pygame.image.load("assets/images/grassy_caves/top.png").convert()
 grassy_top.set_colorkey((255, 255, 255))
+dungeon_top = pygame.image.load("assets/images/dungeon_cave/dungeon_top.png").convert()
+dungeon_top.set_colorkey((255, 255, 255))
+base = pygame.image.load("assets/images/example.png").convert()
+base.set_colorkey((255, 255, 255))
+grass_bg = pygame.image.load("assets/images/bg_tile.png").convert()
+grass_bg.set_colorkey((255, 255, 255))
 
 worm_walk_imgs = [load_img("worm_walk1", base="images"), load_img("worm_walk2", base="images"), load_img("worm_walk3", base="images")]
 
