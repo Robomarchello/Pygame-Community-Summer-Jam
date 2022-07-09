@@ -133,7 +133,7 @@ class Game:
         Renders the games tiles
         """
         for tile in self.tiles:
-            if (math.dist([self.player.rect.x, self.player.rect.y], [tile.rect.x, tile.rect.y]) < 150):
+            if (math.dist([self.player.rect.x, self.player.rect.y], [tile.rect.x, tile.rect.y]) < 125):
                 display.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
                 pygame.draw.rect(self.minimap, (255, 255, 255), (tile.rect.x, tile.rect.y, 16, 16))
                 #self.minimap.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
@@ -197,7 +197,6 @@ class Game:
             self.minimap.set_colorkey((0, 0,0))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
 
-            self.display.blit(pygame.transform.scale(self.background, (self.scale_x, self.scale_y)), (0, 0))
 
             self.BackGround.draw(self.display)
 
@@ -285,13 +284,11 @@ class Game:
 
             for enemy in self.enemies:  
                 if str(enemy) == "Worm":
-                    if self.player.cooldown != 0:
-                        if pygame.Rect(self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y, self.player.rect.width, 
-                            self.player.rect.height).colliderect(
-                            pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 32, 32)
-                        ):
-                            
-                            enemy.health -= 1
+                    for bullet in self.bullets:
+                        bullet_rect = pygame.Rect(bullet.x-self.player.camera.x, bullet.y-self.player.camera.y, 16, 16)
+                        if bullet_rect.colliderect(pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 16)):
+                            print("ye")
+                            enemy.image = worm_hit_img
 
                     if enemy.bullet_cooldown <= 0 and math.dist([self.player.rect.x, self.player.rect.y], [enemy.x, enemy.y]) < 50:
                         x = enemy.x-self.player.camera.x
@@ -392,9 +389,6 @@ class Game:
             for bullet in self.bullets:
                 bullet.main(self.display)        
 
-            color = abs(math.sin(self.global_time / 100)) 
-            _c = color * 10
-            self.background.fill((_c, _c, _c))
 
 
 

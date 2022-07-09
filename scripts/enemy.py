@@ -50,6 +50,9 @@ class Worm(Entity):
 
         self.bullet_cooldown = 0
 
+        self.img = None
+        self.image = worm_walk_imgs[0]
+
     def __repr__(self):
         return "Worm"
 
@@ -67,8 +70,8 @@ class Worm(Entity):
 
     def draw(self, display, camera, player, game):
         self.move()
-        img = pygame.transform.flip(worm_walk_imgs[0], not self.looking_right, False).convert()
-        img.set_colorkey((255, 255, 255))
+        self.img = pygame.transform.flip(self.image, not self.looking_right, False).convert()
+        self.img.set_colorkey((255, 255, 255))
         if self.tile not in game.tiles:
             self.x += 4
             self.y -= self.y_vel
@@ -79,8 +82,6 @@ class Worm(Entity):
 
         if self.health <= 0:
             if not self.has_died:
-
-                
                 if player.moving_right:
                     self.dir[0] = random.randrange(5, 10)
                     self.dir[1] = random.randrange(-5, 5)
@@ -99,4 +100,4 @@ class Worm(Entity):
             game.trails.append([img.copy(), self.x, self.y,155])
 
 
-        display.blit(img, (self.x-camera.x, self.y-camera.y))
+        display.blit(self.img, (self.x-camera.x, self.y-camera.y))
