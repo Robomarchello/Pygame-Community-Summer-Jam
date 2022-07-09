@@ -73,8 +73,7 @@ class Text(UIElement):
         self.size = size
 
         self.text = text
-
-
+        
     def render_text(self, display, word, pos):
         for index, letter in enumerate(word):
                 img = alphabet[letter]

@@ -16,6 +16,7 @@ from scripts.display import screen
 from scripts.bomb import Bomb
 from scripts.enemy_bullet import EnemyBullet
 from scripts.background_scroll import BackGround
+from scripts.game_over import GameOver
 
 import random
 from typing import List
@@ -83,6 +84,8 @@ class Game:
 
         self.backgroundImage = pygame.image.load('assets/images/backgrounds/background.png').convert()
         self.BackGround = BackGround(self.backgroundImage, pygame.Vector2(0, 0), self.player)
+
+        self.GameOver = GameOver((200, 150), self.display)
 
         self.screen_shake = 0
     
@@ -197,7 +200,7 @@ class Game:
             self.minimap.set_colorkey((0, 0,0))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
 
-            self.display.blit(pygame.transform.scale(self.background, (self.scale_x, self.scale_y)), (0, 0))
+            #self.display.blit(pygame.transform.scale(self.background, (self.scale_x, self.scale_y)), (0, 0))
 
             self.BackGround.draw(self.display)
 
@@ -240,6 +243,8 @@ class Game:
                         self.clicking = False
                         self.player.SPEED -= 1
 
+                self.GameOver.handle_event(event)
+                
             if self.clicking:
                 if self.shoot_cooldown <= 0:
                         mx, my = pygame.mouse.get_pos()
@@ -404,6 +409,8 @@ class Game:
 
             if self.screen_shake > 0:
                     self.screen_shake -= 1
+
+            self.GameOver.draw(self.display)
 
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))
