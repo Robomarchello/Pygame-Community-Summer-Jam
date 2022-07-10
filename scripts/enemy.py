@@ -5,6 +5,47 @@ import math
 from scripts.entity import Entity
 from scripts.images import * 
 
+class Skeleton(Entity):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+
+        self.walk_imgs = [self.load_image("dungeon_cave/skeleton_walk1"), self.load_image("dungeon_cave/skeleton_walk2"), 
+            self.load_image("dungeon_cave/skeleton_walk3"), self.load_image("dungeon_cave/skeleton_walk4"), 
+            self.load_image("dungeon_cave/skeleton_walk5"), self.load_image("dungeon_cave/skeleton_walk6")]
+
+
+        self.health = 10
+        self.hitcooldown = 0
+        self.animation_index = 0
+
+        self.image = None
+
+        self.collisions = []
+
+    def __repr__(self):
+        return "Skeleton"
+
+    def draw(self, display, camera, player, game):
+        self.collisions = []
+        self.animation_index = self.animate(self.walk_imgs, self.animation_index, 15)
+
+        if self.hitcooldown > 0:
+            self.hitcooldown -= 1
+        if self.hitcooldown == 0:
+            self.image = self.walk_imgs[self.animation_index // 15]
+
+        for tile in game.near_tiles:
+            rect = pygame.Rect(tile.rect.x-camera.x, tile.rect.y-camera.y, 16, 16)
+            enemy_rect = pygame.Rect(self.x - camera.x, self.y - camera.y + 16, 16, 16)
+            pygame.draw.rect(display, (255, 0, 0), enemy_rect, 1)
+            if rect.colliderect(enemy_rect):
+                self.collisions.append(tile)
+
+            
+
+        display.blit(self.image, (self.x - camera.x, self.y - camera.y))
+        
+
 class Fly(Entity):
     def __init__(self, x, y):
         super().__init__(x, y)

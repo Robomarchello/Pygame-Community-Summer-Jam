@@ -8,7 +8,7 @@ from scripts.tile import Tile
 from scripts.gui import Text, GuiManager
 from scripts.images import *
 from scripts.particle import Particle, ParticleManager
-from scripts.enemy import Worm, Fly
+from scripts.enemy import Worm, Fly, Skeleton
 from scripts.portal import Portal
 from scripts.dimension_transition import dimTrans
 from scripts.bullet import Bullet
@@ -90,7 +90,7 @@ class Game:
         self.screen_shake = 0
 
         self.kill_goals = [10, 15, 20]
-        self.dimension = 0
+        self.dimension = 1
 
         self.kills = 0
 
@@ -103,6 +103,8 @@ class Game:
 
         self.down_decorations = [spike_img, chain_img]
         self.up_decorations = [mushroom_img]
+
+        self.near_tiles = []
     
     def generate_map(self, noise_size, threshold, dimension):
         self.seed = random.randrange(-1000000, 1000000)
@@ -133,10 +135,14 @@ class Game:
                 self.tiles[i].image = self.dimension_centers[dimension]
                 
                 if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
-                    if random.randrange(0, 10) == 5:
-                        self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
-                    if random.randrange(0, 30) == 5:
-                        self.enemies.append(Fly(tile.rect.x, tile.rect.y- 16))
+                    if dimension == 0:
+                        if random.randrange(0, 10) == 5:
+                            self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
+                        if random.randrange(0, 30) == 5:
+                            self.enemies.append(Fly(tile.rect.x, tile.rect.y- 16))
+                    else:
+                        if random.randrange(0, 10) == 5:
+                            self.enemies.append(Skeleton(tile.rect.x, tile.rect.y-32))
                         
                     if random.randrange(0, 30) == 5:
                         self.decorations.append([mushroom_img, tile.rect.x, tile.rect.y-16, tile])
@@ -168,8 +174,10 @@ class Game:
         """
         Renders the games tiles
         """
+        self.near_tiles = []
         for tile in self.tiles:
             if (math.dist([self.player.rect.x, self.player.rect.y], [tile.rect.x, tile.rect.y]) < 125):
+                self.near_tiles.append(tile)
                 display.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
                 pygame.draw.rect(self.minimap, (255, 255, 255), (tile.rect.x, tile.rect.y, 16, 16))
                 #self.minimap.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
@@ -258,6 +266,7 @@ class Game:
                             self.player.double_jumping = True
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.kills += 1
                     if event.button == 1:
                         self.clicking = True
                         self.player.SPEED += 1
@@ -364,7 +373,7 @@ class Game:
                     for bullet in self.bullets:
                         bullet_rect = pygame.Rect(bullet.x, bullet.y, 16, 16)
                         if bullet_rect.colliderect(pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 16)):
-                            enemy.image = fly_hit_img
+                            enemy.image = fly_hit_img if str(enemy) == "Fly" else skeleton_hit_img
                             enemy.hitcooldown = 10
                             self.bullets.remove(bullet)
                             enemy.x -= bullet.x_vel / 2
@@ -429,9 +438,9 @@ class Game:
                 bullet[0] -= bullet[2][0]
                 bullet[1] -= bullet[2][1]
                 bullet[3] -= 1
-                self.glow(light_surf, self.player, (bullet[0]-self.player.camera.x, bullet[1]-self.player.camera.y), 13)
+                self.glow(light_surf, self.player, (bullet[0]-self.player.camera.x, bullet[1]-self.player.camera.y), 7)
 
-                pygame.draw.circle(self.display, (154, 40, 53), (bullet[0]-self.player.camera.x, bullet[1]-self.player.camera.y), 4)
+                pygame.draw.circle(self.display, (154, 40, 53), (bullet[0]-self.player.camera.x, bullet[1]-self.player.camera.y), 2)
 
 
             self.display.blit(light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
