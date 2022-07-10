@@ -60,7 +60,7 @@ class Game:
 
         self.player = Player(300, 400)
 
-        self.gui_manager = GuiManager([Text(100, 10, "kill goal", 40)]) 
+        self.gui_manager = GuiManager([Text(80, 10, "kill goal", 40)]) 
 
         self.seed = random.randrange(-1000000, 1000000)
         self.enemies = []
@@ -82,7 +82,7 @@ class Game:
         self.enemy_bullets = []
         random.seed(self.seed)
 
-        self.backgroundImage = pygame.image.load('assets/images/backgrounds/background.png').convert()
+        self.backgroundImage = pygame.image.load('assets/images/backgrounds/background_1.png').convert()
         self.BackGround = BackGround(self.backgroundImage, pygame.Vector2(0, 0), self.player)
 
         self.GameOver = GameOver((200, 150), self.display)
@@ -90,7 +90,7 @@ class Game:
         self.screen_shake = 0
 
         self.kill_goals = [10, 15, 20]
-        self.dimension = 1
+        self.dimension = 0
 
         self.kills = 0
 
@@ -235,12 +235,11 @@ class Game:
         
         while self.running:
 
-            self.display.fill((34, 32, 52))
+            self.display.fill((17, 24, 55))
             self.minimap.fill((0, 0, 0))
             self.minimap.set_colorkey((0, 0,0))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
 
-            self.display.blit(pygame.transform.scale(self.background, (self.scale_x, self.scale_y)), (0, 0))
 
             self.BackGround.draw(self.display)
 
@@ -266,7 +265,6 @@ class Game:
                             self.player.double_jumping = True
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.kills += 1
                     if event.button == 1:
                         self.clicking = True
                         self.player.SPEED += 1
@@ -308,7 +306,7 @@ class Game:
             self.key_presses["d"] = keys[pygame.K_d]
 
             if self.player.SPEED  == 3:
-                if self.trail_cooldown <= 0:
+                if self.trail_cooldown <= 0 and self.player.moving:
                     self.trails.append([self.player.walk_images[0].copy(), self.player.rect.x, self.player.rect.y,155])
                     self.trail_cooldown = 5
                 else:
