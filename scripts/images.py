@@ -25,8 +25,20 @@ base.set_colorkey((255, 255, 255))
 grass_bg = pygame.image.load("assets/images/bg_tile.png").convert()
 grass_bg.set_colorkey((255, 255, 255))
 
+grassy_right = pygame.image.load("assets/images/grassy_caves/right.png").convert()
+grassy_right.set_colorkey((255, 255, 255))
+grassy_left = pygame.image.load("assets/images/grassy_caves/left.png").convert()
+grassy_left.set_colorkey((255, 255, 255))
+
+grassy_side_left = pygame.image.load("assets/images/grassy_caves/side_left.png").convert()
+grassy_side_left.set_colorkey((255, 255, 255))
+grassy_side_right = pygame.image.load("assets/images/grassy_caves/side_right.png").convert()
+grassy_side_right.set_colorkey((255, 255, 255))
+
 worm_walk_imgs = [load_img("worm_walk1", base="images"), load_img("worm_walk2", base="images"), load_img("worm_walk3", base="images")]
 worm_hit_img = load_img("worm_hit", base="images")
+
+fly_hit_img = load_img("fly_hit", base="images")
 
 alphabet = {
     "a": load_img("a", (0,0,0)),

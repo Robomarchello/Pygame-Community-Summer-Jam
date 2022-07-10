@@ -3,7 +3,7 @@ import random
 import math
 
 from scripts.entity import Entity
-from scripts.images import *
+from scripts.images import * 
 
 class Fly(Entity):
     def __init__(self, x, y):
@@ -13,6 +13,13 @@ class Fly(Entity):
         self.animation_index = 0
         
         self.rect = None
+        self.image = None
+
+        self.hitcooldown = 0
+
+        self.bullet_cooldown = 0
+
+        self.bullet_patterns = [[0.5, 0], [-0.5, 0], [0, 0.5], [0, -0.5], [0.25, 0.25], [-0.25, 0.25], [0.25, -0.25], [-0.25, -0.25]]
 
     def __repr__(self):
         return "Fly"
@@ -20,12 +27,24 @@ class Fly(Entity):
     def draw(self, display, camera, player, game):
         if math.dist([self.x, self.y], [player.rect.x, player.rect.y]) < 100:
             self.rect = pygame.Rect(self.x-camera.x, self.y-camera.y, 16, 16)
-            movement_vector = self.move_towards(player.rect.x-camera.x + random.randrange(-40, 40), player.rect.y-camera.y + random.randrange(-40, 40), 1)
+            movement_vector = self.move_towards(player.rect.x-camera.x + random.randrange(-90, 90), player.rect.y-camera.y + random.randrange(-90, 90), 1)
             self.x += movement_vector[0] 
             self.y += movement_vector[1] 
+            if self.bullet_cooldown <= 0:
+                for pattern in self.bullet_patterns:
+                    game.enemy_bullets.append([self.x, self.y, pattern, 400])
+                self.bullet_cooldown = random.randrange(80, 100)
+            else:
+                self.bullet_cooldown -= 1
+            
+
+        if self.hitcooldown > 0:
+            self.hitcooldown -= 1
+        if self.hitcooldown == 0:
+            self.image = self.images[self.animation_index // 15]
 
         self.animation_index = self.animate(self.images, self.animation_index, 15)
-        display.blit(self.images[self.animation_index // 15], (self.x - camera.x, self.y - camera.y))
+        display.blit(self.image, (self.x - camera.x, self.y - camera.y))
 
 class Worm(Entity):
     def __init__(self, x, y, tile):
@@ -52,6 +71,8 @@ class Worm(Entity):
 
         self.img = None
         self.image = worm_walk_imgs[0]
+
+        self.hitcooldown = 0
 
     def __repr__(self):
         return "Worm"
@@ -98,6 +119,10 @@ class Worm(Entity):
             self.x += self.dir[0] * 4
             self.y += self.dir[1] * 4
             game.trails.append([img.copy(), self.x, self.y,155])
+        
+        if self.hitcooldown > 0:
+            self.hitcooldown -= 1
+        if self.hitcooldown == 0:
+            self.image = worm_walk_imgs[0]
 
-
-        display.blit(self.img, (self.x-camera.x, self.y-camera.y))
+        display.blit(pygame.transform.flip(self.image, not self.looking_right, False), (self.x-camera.x, self.y-camera.y))

@@ -16,6 +16,7 @@ from scripts.display import screen
 from scripts.bomb import Bomb
 from scripts.enemy_bullet import EnemyBullet
 from scripts.background_scroll import BackGround
+from scripts.game_over import GameOver
 
 import random
 from typing import List
@@ -84,6 +85,8 @@ class Game:
         self.backgroundImage = pygame.image.load('assets/images/backgrounds/background.png').convert()
         self.BackGround = BackGround(self.backgroundImage, pygame.Vector2(0, 0), self.player)
 
+        self.GameOver = GameOver((200, 150), self.display)
+
         self.screen_shake = 0
     
 
@@ -102,7 +105,6 @@ class Game:
                     if tile < threshold + 0.4:
                         self.tiles.append(Tile((x*16, y*16, 16, 16), (100, 100, 100)))
 
-
         for i, tile in enumerate(self.tiles):
             if tile._collision:
                 if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) in self.tiles:
@@ -114,7 +116,6 @@ class Game:
                 if pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16) in self.tiles:
                     tile.neighbours.append(pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16)) #left
 
-
                 if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
                     if random.randrange(0, 10) == 5:
                         self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
@@ -124,6 +125,18 @@ class Game:
                     if random.randrange(0, 30) == 5:
                         self.decorations.append([mushroom_img, tile.rect.x, tile.rect.y-16, tile])
                     self.tiles[i].image = grassy_top
+
+                if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles and pygame.Rect(tile.rect.x + 16, tile.rect.y, 16, 16) not in self.tiles:
+                    self.tiles[i].image = grassy_right
+                if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles and pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16) not in self.tiles:
+                    self.tiles[i].image = grassy_left
+
+                if pygame.Rect(tile.rect.x + 16, tile.rect.y, 16, 16) not in self.tiles and pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) in self.tiles:
+                    self.tiles[i].image = grassy_side_right
+                if pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16) not in self.tiles and pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) in self.tiles:
+
+                    self.tiles[i].image = grassy_side_left
+
                 if pygame.Rect(tile.rect.x, tile.rect.y + 16, 16, 16) not in self.tiles:
                     if random.randrange(0, 10) == 5:
                         self.decorations.append([spike_img, tile.rect.x, tile.rect.y+16, tile])
@@ -197,6 +210,7 @@ class Game:
             self.minimap.set_colorkey((0, 0,0))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
 
+            self.display.blit(pygame.transform.scale(self.background, (self.scale_x, self.scale_y)), (0, 0))
 
             self.BackGround.draw(self.display)
 
@@ -239,6 +253,8 @@ class Game:
                         self.clicking = False
                         self.player.SPEED -= 1
 
+                self.GameOver.handle_event(event)
+                
             if self.clicking:
                 if self.shoot_cooldown <= 0:
                         mx, my = pygame.mouse.get_pos()
@@ -285,11 +301,12 @@ class Game:
             for enemy in self.enemies:  
                 if str(enemy) == "Worm":
                     for bullet in self.bullets:
-                        bullet_rect = pygame.Rect(bullet.x-self.player.camera.x, bullet.y-self.player.camera.y, 16, 16)
+                        bullet_rect = pygame.Rect(bullet.x, bullet.y, 16, 16)
                         if bullet_rect.colliderect(pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 16)):
-                            print("ye")
                             enemy.image = worm_hit_img
-
+                            enemy.hitcooldown = 10
+                            self.bullets.remove(bullet)
+                            self.screen_shake += 5
                     if enemy.bullet_cooldown <= 0 and math.dist([self.player.rect.x, self.player.rect.y], [enemy.x, enemy.y]) < 50:
                         x = enemy.x-self.player.camera.x
                         y = enemy.y-self.player.camera.y
@@ -314,9 +331,22 @@ class Game:
 
             light_surf.fill((0, 0, 0))
 
-            self.glow(light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), 130)
+            self.glow(light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), 90)
             for enemy in self.enemies:  
                 if str(enemy) != "Worm":
+                    for bullet in self.bullets:
+                        bullet_rect = pygame.Rect(bullet.x, bullet.y, 16, 16)
+                        if bullet_rect.colliderect(pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 16)):
+                            enemy.image = fly_hit_img
+                            enemy.hitcooldown = 10
+                            self.bullets.remove(bullet)
+                            enemy.x -= bullet.x_vel / 2
+                            enemy.y -= bullet.y_vel  / 2
+                            for i in range(4):
+                                self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
+                            self.screen_shake += 5
+
+
                     enemy.draw(self.display, self.player.camera, self.player, self)
             for decoration in self.decorations:
                 if decoration[3] in self.tiles:
@@ -398,6 +428,8 @@ class Game:
 
             if self.screen_shake > 0:
                     self.screen_shake -= 1
+
+            self.GameOver.draw(self.display)
 
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))
