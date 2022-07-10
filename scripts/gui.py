@@ -73,7 +73,10 @@ class Text(UIElement):
         self.size = size
 
         self.text = text
-        
+
+    def update_text(self, new_text):
+        self.text = new_text
+
     def render_text(self, display, word, pos):
         for index, letter in enumerate(word):
                 img = alphabet[letter]

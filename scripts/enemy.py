@@ -19,6 +19,8 @@ class Fly(Entity):
 
         self.bullet_cooldown = 0
 
+        self.health = 6
+
         self.bullet_patterns = [[0.5, 0], [-0.5, 0], [0, 0.5], [0, -0.5], [0.25, 0.25], [-0.25, 0.25], [0.25, -0.25], [-0.25, -0.25]]
 
     def __repr__(self):
@@ -54,7 +56,7 @@ class Worm(Entity):
 
         self.timer = 10
 
-        self.health = 25
+        self.health = 4
 
         self.dir = [0, 0]
 

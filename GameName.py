@@ -60,7 +60,7 @@ class Game:
 
         self.player = Player(300, 400)
 
-        self.gui_manager = GuiManager([]) 
+        self.gui_manager = GuiManager([Text(100, 10, "kill goal", 40)]) 
 
         self.seed = random.randrange(-1000000, 1000000)
         self.enemies = []
@@ -88,6 +88,11 @@ class Game:
         self.GameOver = GameOver((200, 150), self.display)
 
         self.screen_shake = 0
+
+        self.kill_goals = [10, 15, 20]
+        self.dimension = 0
+
+        self.kills = 0
     
 
     def generate_map(self, noise_size, threshold):
@@ -119,7 +124,7 @@ class Game:
                 if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
                     if random.randrange(0, 10) == 5:
                         self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
-                    if random.randrange(0, 15) == 5:
+                    if random.randrange(0, 30) == 5:
                         self.enemies.append(Fly(tile.rect.x, tile.rect.y- 16))
                         
                     if random.randrange(0, 30) == 5:
@@ -202,7 +207,6 @@ class Game:
         self.dimTrans = dimTrans(pygame.Rect(0, 0, 200, 150))
         light_surf = self.display.copy()
         
-
         while self.running:
 
             self.display.fill((34, 32, 52))
@@ -307,6 +311,8 @@ class Game:
                             enemy.hitcooldown = 10
                             self.bullets.remove(bullet)
                             self.screen_shake += 5
+                            enemy.health -= 1
+
                     if enemy.bullet_cooldown <= 0 and math.dist([self.player.rect.x, self.player.rect.y], [enemy.x, enemy.y]) < 50:
                         x = enemy.x-self.player.camera.x
                         y = enemy.y-self.player.camera.y
@@ -322,11 +328,14 @@ class Game:
                         enemy.bullet_cooldown = 40
                     else:
                         enemy.bullet_cooldown -= 1    
+
+                    if enemy.health <= 0:
+                        self.enemies.remove(enemy)
+                        self.kills += 1
                     enemy.draw(self.display, self.player.camera, self.player, self)
 
             self.render_map(self.display, self.tiles)
 
-            self.gui_manager.draw_gui_elements(self.display, self.events)
             self.particle_manager.manage_particles(self.display, self.player.camera)
 
             light_surf.fill((0, 0, 0))
@@ -345,9 +354,15 @@ class Game:
                             for i in range(4):
                                 self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
                             self.screen_shake += 5
+                            enemy.health -= 1
 
 
-                    enemy.draw(self.display, self.player.camera, self.player, self)
+                if enemy.health <= 0:
+                    self.enemies.remove(enemy)
+                    self.kills += 1
+
+
+                enemy.draw(self.display, self.player.camera, self.player, self)
             for decoration in self.decorations:
                 if decoration[3] in self.tiles:
                     self.display.blit(decoration[0], (decoration[1]-self.player.camera.x, decoration[2]-self.player.camera.y))
@@ -419,9 +434,6 @@ class Game:
             for bullet in self.bullets:
                 bullet.main(self.display)        
 
-
-
-
             if self.screen_shake:
                     self.player.camera.x += random.randint(0, 8) - 4
                     self.player.camera.y += random.randint(0, 8) - 4
@@ -430,6 +442,10 @@ class Game:
                     self.screen_shake -= 1
 
             self.GameOver.draw(self.display)
+
+            self.gui_manager.draw_gui_elements(self.display, self.events)
+            self.gui_manager.get_element(0).update_text(f"kill goal {self.kills}/{self.kill_goals[self.dimension]}")
+        
 
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))
