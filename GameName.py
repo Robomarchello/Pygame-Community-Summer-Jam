@@ -93,9 +93,15 @@ class Game:
         self.dimension = 0
 
         self.kills = 0
-    
 
-    def generate_map(self, noise_size, threshold):
+        self.dimension_tops = [grassy_top, dungeon_top]
+        self.dimension_right = [grassy_right, dungeon_right]
+        self.dimension_left = [grassy_left, dungeon_left]
+        self.dimension_side_left = [grassy_side_left, dungeon_side_left]
+        self.dimension_side_right = [grassy_side_right, dungeon_side_right]
+        self.dimension_centers = [base, dungeon_base]
+    
+    def generate_map(self, noise_size, threshold, dimension):
         self.seed = random.randrange(-1000000, 1000000)
         self.tiles = []
         self.decorations = []
@@ -120,7 +126,7 @@ class Game:
                     tile.neighbours.append(pygame.Rect(tile.rect.x + 16, tile.rect.y, 16, 16)) #right
                 if pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16) in self.tiles:
                     tile.neighbours.append(pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16)) #left
-
+                self.tiles[i].image = self.dimension_centers[dimension]
                 if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
                     if random.randrange(0, 10) == 5:
                         self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
@@ -129,18 +135,18 @@ class Game:
                         
                     if random.randrange(0, 30) == 5:
                         self.decorations.append([mushroom_img, tile.rect.x, tile.rect.y-16, tile])
-                    self.tiles[i].image = grassy_top
+                    self.tiles[i].image = self.dimension_tops[dimension]
 
                 if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles and pygame.Rect(tile.rect.x + 16, tile.rect.y, 16, 16) not in self.tiles:
-                    self.tiles[i].image = grassy_right
+                    self.tiles[i].image = self.dimension_right[dimension]
                 if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles and pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16) not in self.tiles:
-                    self.tiles[i].image = grassy_left
+                    self.tiles[i].image = self.dimension_left[dimension]
 
                 if pygame.Rect(tile.rect.x + 16, tile.rect.y, 16, 16) not in self.tiles and pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) in self.tiles:
-                    self.tiles[i].image = grassy_side_right
+                    self.tiles[i].image = self.dimension_side_right[dimension]
                 if pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16) not in self.tiles and pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) in self.tiles:
 
-                    self.tiles[i].image = grassy_side_left
+                    self.tiles[i].image = self.dimension_side_left[dimension]
 
                 if pygame.Rect(tile.rect.x, tile.rect.y + 16, 16, 16) not in self.tiles:
                     if random.randrange(0, 10) == 5:
@@ -198,7 +204,7 @@ class Game:
         surf.blit(pygame.transform.scale(glow_img, (glow_width, glow_width)), (pos[0]-glow_width/2, pos[1]-glow_width/2), special_flags=pygame.BLEND_RGBA_ADD)
 
     async def main(self):
-        self.generate_map((75, 50), 0.02)
+        self.generate_map((75, 50), 0.02, self.dimension)
 
         self.portal = Portal([0, 0])
         self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
@@ -356,7 +362,6 @@ class Game:
                             self.screen_shake += 5
                             enemy.health -= 1
 
-
                 if enemy.health <= 0:
                     self.enemies.remove(enemy)
                     self.kills += 1
@@ -420,12 +425,13 @@ class Game:
             self.display.blit(light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
 
             #transition between dimensions
-            if self.player.rect.colliderect(self.portal.posRect) and not self.dimTrans.active:
+            if self.player.rect.colliderect(self.portal.posRect) and not self.dimTrans.active and self.kills >= self.kill_goals[self.dimension]:
                 self.dimTrans.activize()
             
             if self.dimTrans.change_scene:
                 self.dimTrans.change_scene = False
-                self.generate_map((75, 50), 0.02)
+                self.dimension += 1
+                self.generate_map((75, 50), 0.02, self.dimension)
                 self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
                 self.player.rect.topleft = (400, 300)
 

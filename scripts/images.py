@@ -35,6 +35,19 @@ grassy_side_left.set_colorkey((255, 255, 255))
 grassy_side_right = pygame.image.load("assets/images/grassy_caves/side_right.png").convert()
 grassy_side_right.set_colorkey((255, 255, 255))
 
+dungeon_top = pygame.image.load("assets/images/dungeon_cave/top.png").convert()
+dungeon_top.set_colorkey((255, 255, 255))
+dungeon_right = pygame.image.load("assets/images/dungeon_cave/right.png").convert()
+dungeon_right.set_colorkey((255, 255, 255))
+dungeon_left = pygame.image.load("assets/images/dungeon_cave/left.png").convert()
+dungeon_left.set_colorkey((255, 255, 255))
+dungeon_side_left = pygame.image.load("assets/images/dungeon_cave/side_left.png").convert()
+dungeon_side_left.set_colorkey((255, 255, 255))
+dungeon_side_right = pygame.image.load("assets/images/dungeon_cave/side_right.png").convert()
+dungeon_side_right.set_colorkey((255, 255, 255))
+dungeon_base = pygame.image.load("assets/images/dungeon_cave/base.png").convert()
+dungeon_base.set_colorkey((255, 255, 255))
+
 worm_walk_imgs = [load_img("worm_walk1", base="images"), load_img("worm_walk2", base="images"), load_img("worm_walk3", base="images")]
 worm_hit_img = load_img("worm_hit", base="images")
 

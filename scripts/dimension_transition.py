@@ -84,4 +84,3 @@ class dimTrans:
         self.change = False
         self.change_scene = False
         self.circlesSpawned = 0
-
