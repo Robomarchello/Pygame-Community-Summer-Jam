@@ -100,6 +100,9 @@ class Game:
         self.dimension_side_left = [grassy_side_left, dungeon_side_left]
         self.dimension_side_right = [grassy_side_right, dungeon_side_right]
         self.dimension_centers = [base, dungeon_base]
+
+        self.down_decorations = [spike_img, chain_img]
+        self.up_decorations = [mushroom_img]
     
     def generate_map(self, noise_size, threshold, dimension):
         self.seed = random.randrange(-1000000, 1000000)
@@ -126,7 +129,9 @@ class Game:
                     tile.neighbours.append(pygame.Rect(tile.rect.x + 16, tile.rect.y, 16, 16)) #right
                 if pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16) in self.tiles:
                     tile.neighbours.append(pygame.Rect(tile.rect.x - 16, tile.rect.y, 16, 16)) #left
+
                 self.tiles[i].image = self.dimension_centers[dimension]
+                
                 if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
                     if random.randrange(0, 10) == 5:
                         self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
@@ -149,8 +154,15 @@ class Game:
                     self.tiles[i].image = self.dimension_side_left[dimension]
 
                 if pygame.Rect(tile.rect.x, tile.rect.y + 16, 16, 16) not in self.tiles:
-                    if random.randrange(0, 10) == 5:
-                        self.decorations.append([spike_img, tile.rect.x, tile.rect.y+16, tile])
+                    if random.randrange(0, 5) == 1:
+                        if dimension == 1:
+                            self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+16, tile])
+                            self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+32, tile])
+                            if random.randrange(0, 3) == 2:
+                                self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+48, tile])
+                        else:
+                            self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+16, tile])
+                            
                     
     def render_map(self, display: pygame.Surface, tiles: List[Tile]) -> None:
         """

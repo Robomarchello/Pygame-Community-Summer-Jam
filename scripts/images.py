@@ -47,6 +47,8 @@ dungeon_side_right = pygame.image.load("assets/images/dungeon_cave/side_right.pn
 dungeon_side_right.set_colorkey((255, 255, 255))
 dungeon_base = pygame.image.load("assets/images/dungeon_cave/base.png").convert()
 dungeon_base.set_colorkey((255, 255, 255))
+chain_img = pygame.image.load("assets/images/dungeon_cave/chain.png").convert()
+chain_img.set_colorkey((255, 255, 255))
 
 worm_walk_imgs = [load_img("worm_walk1", base="images"), load_img("worm_walk2", base="images"), load_img("worm_walk3", base="images")]
 worm_hit_img = load_img("worm_hit", base="images")
