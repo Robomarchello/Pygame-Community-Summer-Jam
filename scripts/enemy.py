@@ -13,6 +13,11 @@ class Skeleton(Entity):
             self.load_image("dungeon_cave/skeleton_walk3"), self.load_image("dungeon_cave/skeleton_walk4"), 
             self.load_image("dungeon_cave/skeleton_walk5"), self.load_image("dungeon_cave/skeleton_walk6")]
 
+        self.attack_imgs = [
+            self.load_image("dungeon_cave/skeleton_attack1"), self.load_image("dungeon_cave/skeleton_attack2"), 
+            self.load_image("dungeon_cave/skeleton_attack3"), self.load_image("dungeon_cave/skeleton_attack4"), 
+            self.load_image("dungeon_cave/skeleton_attack5"), self.load_image("dungeon_cave/skeleton_attack6")
+        ]
 
         self.health = 10
         self.hitcooldown = 0
@@ -22,28 +27,62 @@ class Skeleton(Entity):
 
         self.collisions = []
 
+        self.timer =  0
+        self.moving_right = random.choice([True, False])
+
+        self.attack_cooldown = 0
+        self.attacking = True
+
+        self.bullet_cooldown = 0
+
     def __repr__(self):
         return "Skeleton"
 
     def draw(self, display, camera, player, game):
-        self.collisions = []
-        self.animation_index = self.animate(self.walk_imgs, self.animation_index, 15)
+        if self.timer <= 0:
+            self.moving_right = not self.moving_right
+            self.timer = 40
+        else:
+            self.timer -= 1
+        if random.randrange(0, 3) == 2:
+            if self.moving_right:
+                self.x += 0.1
+            else:
+                self.x -= 0.1
 
+        if self.bullet_cooldown <= 0 and math.dist([player.rect.x, player.rect.y], [self.x, self.y]) < 50:
+            for i in range(5):
+                x = self.x-camera.x + 5
+                y = self.y-camera.y
+                px = player.rect.x-camera.x+random.randrange(-60, 60)
+                py = player.rect.y-camera.y+random.randrange(-60, 60)
+
+                angle = math.atan2(y-py, x-px)
+                x_vel = math.cos(angle) * 1
+                y_vel = math.sin(angle) * 1
+
+                game.enemy_bullets.append([self.x, self.y, [x_vel, y_vel], 400])
+            self.bullet_cooldown = random.randrange(70, 100)
+        else:
+            self.bullet_cooldown -= 1
+
+        if self.attack_cooldown <= 0:
+            self.attacking = not self.attacking
+            self.attack_cooldown = 60
+        else:
+            self.attack_cooldown -= 1
+
+        self.animation_index = self.animate(self.walk_imgs, self.animation_index, 5)
         if self.hitcooldown > 0:
             self.hitcooldown -= 1
         if self.hitcooldown == 0:
-            self.image = self.walk_imgs[self.animation_index // 15]
+            if not self.attacking:
+                self.image = self.walk_imgs[self.animation_index // 5]
+            else:
+                self.image = self.attack_imgs[self.animation_index // 5]
 
-        for tile in game.near_tiles:
-            rect = pygame.Rect(tile.rect.x-camera.x, tile.rect.y-camera.y, 16, 16)
-            enemy_rect = pygame.Rect(self.x - camera.x, self.y - camera.y + 16, 16, 16)
-            pygame.draw.rect(display, (255, 0, 0), enemy_rect, 1)
-            if rect.colliderect(enemy_rect):
-                self.collisions.append(tile)
+        display.blit(pygame.transform.flip(self.image, not self.moving_right, False), (self.x - camera.x, self.y - camera.y))
 
-            
-
-        display.blit(self.image, (self.x - camera.x, self.y - camera.y))
         
 
 class Fly(Entity):

@@ -90,7 +90,7 @@ class Game:
         self.screen_shake = 0
 
         self.kill_goals = [10, 15, 20]
-        self.dimension = 0
+        self.dimension = 1
 
         self.kills = 0
 
@@ -141,7 +141,7 @@ class Game:
                         if random.randrange(0, 30) == 5:
                             self.enemies.append(Fly(tile.rect.x, tile.rect.y- 16))
                     else:
-                        if random.randrange(0, 10) == 5:
+                        if random.randrange(0, 10) == 3:
                             self.enemies.append(Skeleton(tile.rect.x, tile.rect.y-32))
                         
                     if random.randrange(0, 30) == 5:
@@ -217,6 +217,8 @@ class Game:
                             if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
                                 enemy.tile = tile
 
+
+
     def glow(self, surf, host, pos, radius, offset=0):
         glow_width = abs(math.sin(offset)*25) + radius *2
 
@@ -265,6 +267,7 @@ class Game:
                             self.player.double_jumping = True
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    self.kills += 1
                     if event.button == 1:
                         self.clicking = True
                         self.player.SPEED += 1
@@ -355,6 +358,8 @@ class Game:
                         enemy.bullet_cooldown -= 1    
 
                     if enemy.health <= 0:
+                        for i in range(5):
+                                self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
                         self.enemies.remove(enemy)
                         self.kills += 1
                     enemy.draw(self.display, self.player.camera, self.player, self)
@@ -376,7 +381,7 @@ class Game:
                             self.bullets.remove(bullet)
                             enemy.x -= bullet.x_vel / 2
                             enemy.y -= bullet.y_vel  / 2
-                            for i in range(4):
+                            for i in range(10):
                                 self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
                             self.screen_shake += 5
                             enemy.health -= 1
