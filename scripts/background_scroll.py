@@ -1,4 +1,3 @@
-from turtle import position
 import pygame
 from copy import copy
 

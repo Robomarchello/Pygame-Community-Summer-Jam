@@ -90,7 +90,7 @@ class Game:
         self.screen_shake = 0
 
         self.kill_goals = [10, 15, 20]
-        self.dimension = 1
+        self.dimension = 0
 
         self.kills = 0
 
@@ -141,8 +141,8 @@ class Game:
                         if random.randrange(0, 30) == 5:
                             self.enemies.append(Fly(tile.rect.x, tile.rect.y- 16))
                     else:
-                        if random.randrange(0, 10) == 3:
-                            self.enemies.append(Skeleton(tile.rect.x, tile.rect.y-32))
+                        if random.randrange(0, 5) == 3:
+                            self.enemies.append(Skeleton(tile.rect.x, tile.rect.y-32, tile))
                         
                     if random.randrange(0, 30) == 5:
                         self.decorations.append([mushroom_img, tile.rect.x, tile.rect.y-16, tile])
@@ -217,6 +217,11 @@ class Game:
                             if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
                                 enemy.tile = tile
 
+                    if str(enemy) == "Skeleton":
+                        if enemy.displaced:
+                            if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+30, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
+                                enemy.tile = tile
+
 
 
     def glow(self, surf, host, pos, radius, offset=0):
@@ -267,7 +272,7 @@ class Game:
                             self.player.double_jumping = True
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.kills += 1
+                    #self.kills += 1
                     if event.button == 1:
                         self.clicking = True
                         self.player.SPEED += 1
@@ -375,20 +380,24 @@ class Game:
                 if str(enemy) != "Worm":
                     for bullet in self.bullets:
                         bullet_rect = pygame.Rect(bullet.x, bullet.y, 16, 16)
-                        if bullet_rect.colliderect(pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 16)):
+                        enemy_rect = pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 16) if str(enemy) != "Skeleton" else pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 32)
+                        if bullet_rect.colliderect(enemy_rect):
                             enemy.image = fly_hit_img if str(enemy) == "Fly" else skeleton_hit_img
                             enemy.hitcooldown = 10
                             self.bullets.remove(bullet)
-                            enemy.x -= bullet.x_vel / 2
-                            enemy.y -= bullet.y_vel  / 2
+                            if str(enemy) != "Skeleton":
+                                enemy.x -= bullet.x_vel / 2 
+                                enemy.y -= bullet.y_vel  / 2
                             for i in range(10):
                                 self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
                             self.screen_shake += 5
                             enemy.health -= 1
 
-                if enemy.health <= 0:
-                    self.enemies.remove(enemy)
-                    self.kills += 1
+                    if enemy.health <= 0:
+                        for i in range(10):
+                            self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (255, 255, 255), False, 1, 100])
+                        self.enemies.remove(enemy)
+                        self.kills += 1
 
 
                 enemy.draw(self.display, self.player.camera, self.player, self)
@@ -455,6 +464,7 @@ class Game:
             if self.dimTrans.change_scene:
                 self.dimTrans.change_scene = False
                 self.dimension += 1
+                self.kills = 0
                 self.generate_map((75, 50), 0.02, self.dimension)
                 self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
                 self.player.rect.topleft = (400, 300)

@@ -6,7 +6,7 @@ from scripts.entity import Entity
 from scripts.images import * 
 
 class Skeleton(Entity):
-    def __init__(self, x, y):
+    def __init__(self, x, y, tile):
         super().__init__(x, y)
 
         self.walk_imgs = [self.load_image("dungeon_cave/skeleton_walk1"), self.load_image("dungeon_cave/skeleton_walk2"), 
@@ -23,6 +23,8 @@ class Skeleton(Entity):
         self.hitcooldown = 0
         self.animation_index = 0
 
+        self.tile = tile
+
         self.image = None
 
         self.collisions = []
@@ -35,10 +37,18 @@ class Skeleton(Entity):
 
         self.bullet_cooldown = 0
 
+        self.displaced = False
+
     def __repr__(self):
         return "Skeleton"
 
     def draw(self, display, camera, player, game):
+        if self.tile not in game.tiles:
+            self.y += 1.5
+            self.displaced = True
+        else:
+            self.displaced = False
+
         if self.timer <= 0:
             self.moving_right = not self.moving_right
             self.timer = 40
