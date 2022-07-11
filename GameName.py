@@ -82,8 +82,9 @@ class Game:
         self.enemy_bullets = []
         random.seed(self.seed)
 
-        self.backgroundImage = pygame.image.load('assets/images/backgrounds/background_1.png').convert()
-        self.BackGround = BackGround(self.backgroundImage, pygame.Vector2(0, 0), self.player)
+        self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert()]
+
+
 
         self.GameOver = GameOver((200, 150), self.display)
 
@@ -107,6 +108,8 @@ class Game:
         self.near_tiles = []
     
     def generate_map(self, noise_size, threshold, dimension):
+        self.backgroundImage = self.background_imgs[dimension]
+        self.BackGround = BackGround(self.backgroundImage, pygame.Vector2(0, 0), self.player)
         self.seed = random.randrange(-1000000, 1000000)
         self.tiles = []
         self.decorations = []
@@ -395,7 +398,8 @@ class Game:
 
                     if enemy.health <= 0:
                         for i in range(10):
-                            self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (255, 255, 255), False, 1, 100])
+                            self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 3, (255, 255, 255), False, 1, 100])
+                        
                         self.enemies.remove(enemy)
                         self.kills += 1
 
