@@ -25,7 +25,7 @@ import json
 
 import platform
 
-if platform.platform() == 'emscripten':
+if platform.system().lower() == 'emscripten':
     from perlin_noise.noise import PerlinNoise
 else:
     from perlin_noise import PerlinNoise
