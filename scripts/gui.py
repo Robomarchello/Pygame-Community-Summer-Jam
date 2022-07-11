@@ -19,6 +19,58 @@ class UIElement(ABC):
     def draw(self, display: pygame.Surface) -> None:
         pass
 
+class HealthBar(UIElement):
+    def __init__(self, player, rect, gameOver):
+        super().__init__(rect.x, rect.y)
+        self.player = player
+        self.hp = player.hp
+        self.rect = rect
+
+        self.gameOver = gameOver
+
+        self.hpPerPixel = self.rect.width / self.hp
+        self.crntHpRect = self.rect.copy()
+
+        self.animRect = self.rect.copy()
+        self.animFrom = pygame.Vector2(self.crntHpRect.width)
+        self.animTo = pygame.Vector2(self.crntHpRect.width)
+        self.animProgress = 0.0
+        
+
+    def draw(self, display):
+        if self.animProgress <= 1:
+            self.animRect.width = self.animFrom.lerp(self.animTo, self.animProgress).x
+
+            self.animProgress += 0.05
+            self.animProgress = round(self.animProgress, 2)
+
+
+        pygame.draw.rect(display, (255, 255, 255), self.animRect)
+
+        self.crntHpRect.width = self.hpPerPixel * self.hp
+        pygame.draw.rect(display, (255, 0, 0), self.crntHpRect)
+
+        pygame.draw.rect(display, (0, 0, 0), self.rect, width=2)
+
+    def update_hp(self, hp):
+        self.hp = hp
+        self.player.hp = hp
+        self.animFrom = self.animTo.copy()
+        self.animTo.x = self.hpPerPixel * self.hp
+        self.animProgress = 0.0
+
+        if self.hp <= 0:
+            self.hp = 0
+            self.gameOver.GameOver = True
+            self.gameOver.visible = True
+            
+    
+    def handle_events(self, events: list) -> None:
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    self.update_hp(self.hp - 20)
+
 
 class GuiManager:
     def __init__(self, gui_elements: List[UIElement]) -> None:

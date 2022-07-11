@@ -5,7 +5,7 @@ import math
 
 from scripts.player import Player
 from scripts.tile import Tile
-from scripts.gui import Text, GuiManager
+from scripts.gui import Text, GuiManager, HealthBar
 from scripts.images import *
 from scripts.particle import Particle, ParticleManager
 from scripts.enemy import Worm, Fly, Skeleton
@@ -60,7 +60,9 @@ class Game:
 
         self.player = Player(300, 400)
 
-        self.gui_manager = GuiManager([Text(80, 10, "kill goal", 40)]) 
+        self.GameOver = GameOver((200, 150), self.display)
+
+        self.gui_manager = GuiManager([Text(80, 10, "kill goal", 40), HealthBar(self.player, pygame.Rect(120, 5, 75, 12), self.GameOver)]) 
 
         self.seed = random.randrange(-1000000, 1000000)
         self.enemies = []
@@ -83,9 +85,7 @@ class Game:
         random.seed(self.seed)
 
         self.backgroundImage = pygame.image.load('assets/images/backgrounds/background_1.png').convert()
-        self.BackGround = BackGround(self.backgroundImage, pygame.Vector2(0, 0), self.player)
-
-        self.GameOver = GameOver((200, 150), self.display)
+        self.BackGround = BackGround(self.backgroundImage, pygame.Vector2(0, 0), self.player) 
 
         self.screen_shake = 0
 
