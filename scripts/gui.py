@@ -35,7 +35,6 @@ class HealthBar(UIElement):
         self.animFrom = pygame.Vector2(self.crntHpRect.width)
         self.animTo = pygame.Vector2(self.crntHpRect.width)
         self.animProgress = 0.0
-        
 
     def draw(self, display):
         if self.animProgress <= 1:

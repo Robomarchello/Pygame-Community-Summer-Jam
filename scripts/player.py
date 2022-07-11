@@ -116,8 +116,9 @@ class Player(Entity):
     def get_pos(self):
         return (self.x-self.camera.x, self.y-self.camera.y)
 
-        
-        
+    
+    def get_rect(self):
+        return pygame.Rect(self.rect.x-self.camera.x, self.rect.y-self.camera.y, 16, 16)
 
     def draw(self, display) -> None:
         """

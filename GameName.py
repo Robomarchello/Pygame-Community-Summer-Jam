@@ -297,18 +297,18 @@ class Game:
                 
             if self.clicking:
                 if self.shoot_cooldown <= 0:
-                        mx, my = pygame.mouse.get_pos()
-                        mx /= 4
-                        my /= 4
+                    mx, my = pygame.mouse.get_pos()
+                    mx /= 4
+                    my /= 4
 
-                        mx += random.randrange(-10, 10)
-                        my += random.randrange(-10, 10)
+                    mx += random.randrange(-10, 10)
+                    my += random.randrange(-10, 10)
 
 
-                        rel_x, rel_y = mx - (self.player.rect.x-self.player.camera.x), my - (self.player.rect.y-self.player.camera.y)
+                    rel_x, rel_y = mx - (self.player.rect.x-self.player.camera.x), my - (self.player.rect.y-self.player.camera.y)
 
-                        self.bullets.append(Bullet(self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y, mx, my, rel_x, rel_y))
-                        self.shoot_cooldown = 10
+                    self.bullets.append(Bullet(self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y, mx, my, rel_x, rel_y))
+                    self.shoot_cooldown = 10
                 else:
                     self.shoot_cooldown -= 1
 
@@ -455,6 +455,16 @@ class Game:
                 bullet[1] -= bullet[2][1]
                 bullet[3] -= 1
                 self.glow(light_surf, self.player, (bullet[0]-self.player.camera.x, bullet[1]-self.player.camera.y), 7)
+                rect = pygame.Rect(bullet[0]-self.player.camera.x-2, bullet[1]-self.player.camera.y, 4, 4)
+
+                if self.player.get_rect().colliderect(rect):
+                    self.screen_shake += 4
+                    for i in range(10):
+                        self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
+                    self.player.hp -= 1
+                    self.gui_manager.get_element(1).update_hp(self.player.hp)
+                    self.enemy_bullets.remove(bullet)
+
 
                 pygame.draw.circle(self.display, (154, 40, 53), (bullet[0]-self.player.camera.x, bullet[1]-self.player.camera.y), 2)
 
