@@ -68,7 +68,7 @@ class Game:
 
         self.GameOver = GameOver((200, 150), self.display)
 
-        self.gui_manager = GuiManager([Text(80, 10, "kill goal", 40), HealthBar(self.player, pygame.Rect(120, 5, 75, 12), self.GameOver)]) 
+        self.gui_manager = GuiManager([Text(60, 10, "kill goal", 40), HealthBar(self.player, pygame.Rect(56, 130 , 75, 12), self.GameOver)]) 
 
         self.seed = random.randrange(-1000000, 1000000)
         self.enemies = []
@@ -95,7 +95,7 @@ class Game:
         self.screen_shake = 0
 
         self.kill_goals = [10, 11, 20]
-        self.dimension = 2
+        self.dimension = 0
 
         self.kills = 0
 
@@ -147,10 +147,13 @@ class Game:
                             self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
                         if random.randrange(0, 30) == 5:
                             self.enemies.append(Fly(tile.rect.x, tile.rect.y- 16))
-                    else:
+                    elif dimension == 1:
                         if random.randrange(0, 5) == 3:
                             self.enemies.append(Skeleton(tile.rect.x, tile.rect.y-32, tile))
-                        
+                    elif dimension == 2:
+                        pass
+                        #TODO: The lava dimension needs enemys :)
+
                     if random.randrange(0, 30) == 5:
                         self.decorations.append([mushroom_img, tile.rect.x, tile.rect.y-16, tile])
                     self.tiles[i].image = self.dimension_tops[dimension]
@@ -410,6 +413,7 @@ class Game:
 
 
                 enemy.draw(self.display, self.player.camera, self.player, self)
+
             for i, decoration in enumerate(self.decorations):
                 if decoration[3] in self.tiles:
                     if type(decoration[0]) != list:
@@ -505,7 +509,7 @@ class Game:
             self.screen_shake -= 1 * bool(self.screen_shake)
 
             self.gui_manager.draw_gui_elements(self.display, self.events)
-            self.gui_manager.get_element(0).update_text(f"kill goal {self.kills}/{self.kill_goals[self.dimension]}")
+            self.gui_manager.get_element(0).update_text(f"Kill Goal {self.kills}/{self.kill_goals[self.dimension]}")
 
             self.GameOver.draw(self.display)
             if self.GameOver.RestartMenu.restart:
@@ -515,7 +519,7 @@ class Game:
                 self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
                 self.player.rect.topleft = (400, 300)
                 
-            self.GameOver.restart(self.gui_manager.get_element(1))
+            self.GameOver.restart(self.gui_manager.get_element(1), self)
             
 
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))

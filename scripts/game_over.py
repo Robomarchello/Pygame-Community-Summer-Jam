@@ -149,11 +149,12 @@ class GameOver():
 
     #def updateGreySurf()
 
-    def restart(self, HealthBar):
+    def restart(self, HealthBar, game):
         if self.RestartMenu.restart:
             HealthBar.hp = HealthBar.rect.width / HealthBar.hpPerPixel
             self.RestartMenu.restart = False
             self.GameOver = False
+            game.player.hp = 100
             
     def draw(self, screen):
         if self.visible:# if gameover: is pretty bad way to do this😅
