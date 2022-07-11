@@ -26,10 +26,11 @@ class Button():
 
         if self.rect.collidepoint(self.mp):
             self.onRect = True
-            pygame.mouse.set_cursor(SYSTEM_CURSOR_HAND)
+            #This was pretty cool though
+            #pygame.mouse.set_cursor(SYSTEM_CURSOR_HAND)
         else:
             self.onRect = False
-            pygame.mouse.set_cursor(SYSTEM_CURSOR_ARROW)
+            #pygame.mouse.set_cursor(SYSTEM_CURSOR_ARROW)
 
     def handle_event(self, event):
         if event.type == MOUSEMOTION:
@@ -46,6 +47,8 @@ class RestartMenu():
         self.rect = rect
 
         self.surface = pygame.Surface(self.rect.size)
+
+        self.restart = False
 
         self.active = False
         self.activePos = pygame.Vector2(rect.copy().center[0], rect.copy().top)
@@ -88,8 +91,7 @@ class RestartMenu():
         '''
         
         self.restartCounter += 1
-
-        self.gameOver.GameOver = False
+        self.restart = True
     
     def updateString(self):
         '''updates self.randomStr'''
@@ -145,9 +147,14 @@ class GameOver():
         self.visible = False
         self.GameOver = False
 
-    #def UpdateGreyBg(self, surface):
-        #pass
+    #def updateGreySurf()
 
+    def restart(self, HealthBar):
+        if self.RestartMenu.restart:
+            HealthBar.hp = HealthBar.rect.width / HealthBar.hpPerPixel
+            self.RestartMenu.restart = False
+            self.GameOver = False
+            
     def draw(self, screen):
         if self.visible:# if gameover: is pretty bad way to do this😅
             self.RestartMenu.draw(screen)

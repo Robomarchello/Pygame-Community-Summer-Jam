@@ -59,7 +59,6 @@ class HealthBar(UIElement):
         self.animProgress = 0.0
 
         if self.hp <= 0:
-            print('yes')
             self.hp = 0
             self.gameOver.GameOver = True
             self.gameOver.visible = True

@@ -23,9 +23,9 @@ from typing import List
 
 import json
 
-import platform
+from platform import system
 
-if platform.system().lower() == 'emscripten':
+if system().lower() == 'emscripten':
     from perlin_noise.noise import PerlinNoise
 else:
     from perlin_noise import PerlinNoise
@@ -85,8 +85,6 @@ class Game:
         random.seed(self.seed)
 
         self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert()]
-
-        self.GameOver = GameOver((200, 150), self.display)
 
         self.screen_shake = 0
 
@@ -489,7 +487,17 @@ class Game:
 
             self.gui_manager.draw_gui_elements(self.display, self.events)
             self.gui_manager.get_element(0).update_text(f"kill goal {self.kills}/{self.kill_goals[self.dimension]}")
-        
+
+            self.GameOver.draw(self.display)
+            if self.GameOver.RestartMenu.restart:
+                self.dimension = 0
+                self.kills = 0
+                self.generate_map((75, 50), 0.02, self.dimension)
+                self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
+                self.player.rect.topleft = (400, 300)
+                
+            self.GameOver.restart(self.gui_manager.get_element(1))
+            
 
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))
