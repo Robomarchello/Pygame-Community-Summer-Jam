@@ -242,6 +242,8 @@ class Game:
 
         self.dimTrans = dimTrans(pygame.Rect(0, 0, 200, 150))
         light_surf = self.display.copy()
+
+        pygame.mouse.set_visible(False)
         
         while self.running:
 
@@ -497,8 +499,17 @@ class Game:
             self.gui_manager.get_element(0).update_text(f"kill goal {self.kills}/{self.kill_goals[self.dimension]}")
         
 
+            mx, my = pygame.mouse.get_pos()
+            mx /= 4
+            my /= 4
+
+            self.display.blit(cursor_img, (mx-8, my-8))
+
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))
+
+
+
 
             pygame.display.update()
             self.clock.tick(self.FPS)

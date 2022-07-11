@@ -53,6 +53,9 @@ chain_img.set_colorkey((255, 255, 255))
 skeleton_hit_img = pygame.image.load("assets/images/dungeon_cave/skeleton_hit.png").convert()
 skeleton_hit_img.set_colorkey((255, 255, 255))
 
+cursor_img = pygame.image.load("assets/images/cursor.png").convert()
+cursor_img.set_colorkey((0, 0, 0))
+
 worm_walk_imgs = [load_img("worm_walk1", base="images"), load_img("worm_walk2", base="images"), load_img("worm_walk3", base="images")]
 worm_hit_img = load_img("worm_hit", base="images")
 

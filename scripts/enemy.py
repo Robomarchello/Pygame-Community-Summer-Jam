@@ -72,7 +72,7 @@ class Skeleton(Entity):
                 y_vel = math.sin(angle) * 1
 
                 game.enemy_bullets.append([self.x, self.y, [x_vel, y_vel], 400])
-            self.bullet_cooldown = random.randrange(70, 100)
+            self.bullet_cooldown = random.randrange(10, 20)
         else:
             self.bullet_cooldown -= 1
 
