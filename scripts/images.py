@@ -76,6 +76,9 @@ worm_hit_img = load_img("worm_hit", base="images")
 
 fly_hit_img = load_img("fly_hit", base="images")
 
+lava_imgs = [load_img("lava1", base="images/lava_cave"), load_img("lava2", base="images/lava_cave"),
+load_img("lava3", base="images/lava_cave"), load_img("lava4", base="images/lava_cave")]
+
 alphabet = {
     "a": load_img("a", (0,0,0)),
     "b": load_img("b", (0,0,0)),

@@ -30,6 +30,12 @@ if platform.system().lower() == 'emscripten':
 else:
     from perlin_noise import PerlinNoise
 
+def animate(image_list, animation_index, time_to_show_image_on_screen):
+    if animation_index+1 >= len(image_list)*time_to_show_image_on_screen:
+        animation_index = 0
+    animation_index += 1
+
+    return animation_index
 
 class Game:
     FPS = 60
@@ -84,7 +90,7 @@ class Game:
         self.enemy_bullets = []
         random.seed(self.seed)
 
-        self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert()]
+        self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert(), pygame.image.load('assets/images/backgrounds/lava.png').convert()]
 
         self.GameOver = GameOver((200, 150), self.display)
 
@@ -102,7 +108,7 @@ class Game:
         self.dimension_side_right = [grassy_side_right, dungeon_side_right, lava_side_right]
         self.dimension_centers = [base, dungeon_base, lava_base]
 
-        self.down_decorations = [spike_img, chain_img, chain_img]
+        self.down_decorations = [spike_img, chain_img, lava_imgs]
         self.up_decorations = [mushroom_img]
 
         self.near_tiles = []
@@ -169,10 +175,18 @@ class Game:
                             self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+32, tile])
                             if random.randrange(0, 3) == 2:
                                 self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+48, tile])
-                        else:
+                        elif dimension == 0:
                             self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+16, tile])
-                            
-                    
+                        elif dimension == 2:
+                            if random.randrange(0, 3) == 2:
+                                count = 1
+                                while pygame.Rect(tile.rect.x, tile.rect.y + count * 16, 16, 16) not in self.tiles:
+                                    count += 1
+                                    if count < 40:
+                                        self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y + (count - 1) * 16, tile, 0])
+                                    else:
+                                        break
+                                
     def render_map(self, display: pygame.Surface, tiles: List[Tile]) -> None:
         """
         Renders the games tiles
@@ -398,9 +412,15 @@ class Game:
 
 
                 enemy.draw(self.display, self.player.camera, self.player, self)
-            for decoration in self.decorations:
+            for i, decoration in enumerate(self.decorations):
                 if decoration[3] in self.tiles:
-                    self.display.blit(decoration[0], (decoration[1]-self.player.camera.x, decoration[2]-self.player.camera.y))
+                    if type(decoration[0]) != list:
+                        self.display.blit(decoration[0], (decoration[1]-self.player.camera.x, decoration[2]-self.player.camera.y))
+                    else:
+                        animation_index = animate(decoration[0], decoration[-1], 5)
+                        self.decorations[i][-1] = animation_index
+                        self.display.blit(decoration[0][animation_index // 5], (decoration[1]-self.player.camera.x, decoration[2]-self.player.camera.y))
+
             for trail in self.trails:
                 if trail[3] < 0:
                     self.trails.remove(trail)
