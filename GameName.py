@@ -84,23 +84,23 @@ class Game:
         self.enemy_bullets = []
         random.seed(self.seed)
 
-        self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert()]
+        self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert()]
 
         self.screen_shake = 0
 
-        self.kill_goals = [10, 15, 20]
-        self.dimension = 0
+        self.kill_goals = [10, 11, 20]
+        self.dimension = 2
 
         self.kills = 0
 
-        self.dimension_tops = [grassy_top, dungeon_top]
-        self.dimension_right = [grassy_right, dungeon_right]
-        self.dimension_left = [grassy_left, dungeon_left]
-        self.dimension_side_left = [grassy_side_left, dungeon_side_left]
-        self.dimension_side_right = [grassy_side_right, dungeon_side_right]
-        self.dimension_centers = [base, dungeon_base]
+        self.dimension_tops = [grassy_top, dungeon_top, lava_top]
+        self.dimension_right = [grassy_right, dungeon_right, lava_right]
+        self.dimension_left = [grassy_left, dungeon_left, lava_left]
+        self.dimension_side_left = [grassy_side_left, dungeon_side_left, lava_side_left]
+        self.dimension_side_right = [grassy_side_right, dungeon_side_right, lava_side_right]
+        self.dimension_centers = [base, dungeon_base, lava_base]
 
-        self.down_decorations = [spike_img, chain_img]
+        self.down_decorations = [spike_img, chain_img, chain_img]
         self.up_decorations = [mushroom_img]
 
         self.near_tiles = []
@@ -296,6 +296,7 @@ class Game:
                 
             if self.clicking:
                 if self.shoot_cooldown <= 0:
+                    self.screen_shake += 2
                     mx, my = pygame.mouse.get_pos()
                     mx /= 4
                     my /= 4
@@ -388,7 +389,7 @@ class Game:
 
                     if enemy.health <= 0:
                         for i in range(10):
-                            self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 3, (255, 255, 255), False, 1, 100])
+                            self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (255, 255, 255), False, 1, 100])
                         
                         self.enemies.remove(enemy)
                         self.kills += 1
@@ -478,12 +479,10 @@ class Game:
             for bullet in self.bullets:
                 bullet.main(self.display)        
 
-            if self.screen_shake:
-                    self.player.camera.x += random.randint(0, 8) - 4
-                    self.player.camera.y += random.randint(0, 8) - 4
+            self.player.camera.x += (random.randint(0, 8) - 4) * bool(self.screen_shake) 
+            self.player.camera.y += (random.randint(0, 8) - 4) * bool(self.screen_shake)
 
-            if self.screen_shake > 0:
-                    self.screen_shake -= 1
+            self.screen_shake -= 1 * bool(self.screen_shake)
 
             self.gui_manager.draw_gui_elements(self.display, self.events)
             self.gui_manager.get_element(0).update_text(f"kill goal {self.kills}/{self.kill_goals[self.dimension]}")

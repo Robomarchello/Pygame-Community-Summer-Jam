@@ -47,6 +47,21 @@ dungeon_side_right = pygame.image.load("assets/images/dungeon_cave/side_right.pn
 dungeon_side_right.set_colorkey((255, 255, 255))
 dungeon_base = pygame.image.load("assets/images/dungeon_cave/base.png").convert()
 dungeon_base.set_colorkey((255, 255, 255))
+
+lava_top = pygame.image.load("assets/images/lava_cave/top.png").convert()
+lava_top.set_colorkey((255, 255, 255))
+lava_right = pygame.image.load("assets/images/lava_cave/right.png").convert()
+lava_right.set_colorkey((255, 255, 255))
+lava_left = pygame.image.load("assets/images/lava_cave/left.png").convert()
+lava_left.set_colorkey((255, 255, 255))
+lava_side_left = pygame.image.load("assets/images/lava_cave/side_left.png").convert()
+lava_side_left.set_colorkey((255, 255, 255))
+lava_side_right = pygame.image.load("assets/images/lava_cave/side_right.png").convert()
+lava_side_right.set_colorkey((255, 255, 255))
+lava_base = pygame.image.load("assets/images/lava_cave/base.png").convert()
+lava_base.set_colorkey((255, 255, 255))
+
+
 chain_img = pygame.image.load("assets/images/dungeon_cave/chain.png").convert()
 chain_img.set_colorkey((255, 255, 255))
 
