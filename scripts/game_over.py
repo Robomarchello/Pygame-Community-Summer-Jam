@@ -70,7 +70,7 @@ class RestartMenu():
         self.GameOverStr = 'Game Over!'
         #load it from json file;) like "Give it another try!", "You can do better!", 
         self.randomStrings = ['Give it another try!', 'You can do better!',
-        'You should try again;)', 'Restart and do better']
+        'You should try again ;)', 'Restart and do better']
 
         self.randomStr = ''
         self.updateString()

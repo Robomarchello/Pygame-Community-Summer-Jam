@@ -19,7 +19,7 @@ class Skeleton(Entity):
             self.load_image("dungeon_cave/skeleton_attack5"), self.load_image("dungeon_cave/skeleton_attack6")
         ]
 
-        self.health = 10
+        self.health = 7
         self.hitcooldown = 0
         self.animation_index = 0
 
