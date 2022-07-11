@@ -26,6 +26,8 @@ class Player(Entity):
         
         self.camera = pygame.math.Vector2()
         self.player_movement = {"horizontal": 0, "vertical": self.y_velocity}
+        
+        self.hp = 100
 
         self.jump_count = 0
 

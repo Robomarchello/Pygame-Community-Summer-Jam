@@ -5,7 +5,7 @@ import math
 
 from scripts.player import Player
 from scripts.tile import Tile
-from scripts.gui import Text, GuiManager
+from scripts.gui import Text, GuiManager, HealthBar
 from scripts.images import *
 from scripts.particle import Particle, ParticleManager
 from scripts.enemy import Worm, Fly, Skeleton
@@ -25,7 +25,7 @@ import json
 
 import platform
 
-if platform.platform() == 'emscripten':
+if platform.system().lower() == 'emscripten':
     from perlin_noise.noise import PerlinNoise
 else:
     from perlin_noise import PerlinNoise
@@ -60,7 +60,9 @@ class Game:
 
         self.player = Player(300, 400)
 
-        self.gui_manager = GuiManager([Text(80, 10, "kill goal", 40)]) 
+        self.GameOver = GameOver((200, 150), self.display)
+
+        self.gui_manager = GuiManager([Text(80, 10, "kill goal", 40), HealthBar(self.player, pygame.Rect(120, 5, 75, 12), self.GameOver)]) 
 
         self.seed = random.randrange(-1000000, 1000000)
         self.enemies = []
@@ -83,8 +85,6 @@ class Game:
         random.seed(self.seed)
 
         self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert()]
-
-
 
         self.GameOver = GameOver((200, 150), self.display)
 
@@ -484,8 +484,6 @@ class Game:
 
             if self.screen_shake > 0:
                     self.screen_shake -= 1
-
-            self.GameOver.draw(self.display)
 
             self.gui_manager.draw_gui_elements(self.display, self.events)
             self.gui_manager.get_element(0).update_text(f"kill goal {self.kills}/{self.kill_goals[self.dimension]}")

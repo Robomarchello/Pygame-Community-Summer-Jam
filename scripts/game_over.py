@@ -1,21 +1,20 @@
 import pygame
 from pygame.locals import *
 from random import choice
-from dataclasses import dataclass
 
 
 pygame.init()
 
-@dataclass
 class Button():
-    rect: pygame.Rect
-    text: str
-    font: pygame.font.Font
-    rectColor: pygame.Color
-    textColor: pygame.Color
-    func: None
-    mp: pygame.Vector2 = pygame.Vector2(0, 0)
-    onRect: bool = False
+    def __init__(self, rect, text, font, rectColor, textColor, func):
+        self.rect = rect
+        self.text = text
+        self.font = font
+        self.rectColor = rectColor
+        self.textColor = textColor
+        self.func = func
+        self.mp = pygame.Vector2(0, 0)
+        self.onRect = False
 
     def draw(self, screen):
         textRender = self.font.render(self.text, False, self.textColor)
