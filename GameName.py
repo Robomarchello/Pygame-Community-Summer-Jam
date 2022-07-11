@@ -179,7 +179,7 @@ class Game:
         """
         self.near_tiles = []
         for tile in self.tiles:
-            if (math.dist([self.player.rect.x, self.player.rect.y], [tile.rect.x, tile.rect.y]) < 125):
+            if (math.dist([self.player.rect.x, self.player.rect.y], [tile.rect.x, tile.rect.y]) < 100):
                 self.near_tiles.append(tile)
                 display.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
                 pygame.draw.rect(self.minimap, (255, 255, 255), (tile.rect.x, tile.rect.y, 16, 16))
@@ -247,9 +247,7 @@ class Game:
 
             self.display.fill((17, 24, 55))
             self.minimap.fill((0, 0, 0))
-            self.minimap.set_colorkey((0, 0,0))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
-
 
             self.BackGround.draw(self.display)
 

@@ -55,8 +55,12 @@ class Player(Entity):
         return_tiles = []
         for tile in tiles:
             if tile._collision:
-                if (math.dist([self.rect.x, self.rect.y], [tile.rect.x, tile.rect.y]) < 25):
+           #     if (math.dist([self.rect.x, self.rect.y], [tile.rect.x, tile.rect.y]) < 25):
+            #        return_tiles.append(tile)
+
+                if tile.rect.colliderect(player_rect):
                     return_tiles.append(tile)
+
 
         return return_tiles
 
@@ -77,6 +81,7 @@ class Player(Entity):
 
         self.is_on_ground = False
         player_rect.y += movement["vertical"]
+        tiles = self.get_colliding_tiles(map_tiles, player_rect)
         for tile in tiles:
             if tile.collision(player_rect):
                 if movement["vertical"] > 0:
