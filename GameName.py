@@ -119,6 +119,8 @@ class Game:
         self.tut_text2 = self.regularText.render("Left click to shoot", False, (255, 255, 255))
         self.tut_text3 = self.regularText.render("Right click to throw bomb", False, (255, 255, 255))
 
+        self.bg_colors = [(17, 24, 55), (0, 10, 3), (23, 23, 17), (17, 24, 55)]
+
     
     def generate_map(self, noise_size, threshold, dimension):
         self.backgroundImage = self.background_imgs[dimension]
@@ -289,7 +291,7 @@ class Game:
         pygame.mouse.set_cursor(pygame.cursors.Cursor((0, 0), pygame.transform.scale(cursor_img, (16, 16))))
 
         while self.running:
-            self.display.fill((17, 24, 55))
+            self.display.fill(self.bg_colors[self.dimension])
             self.minimap.fill((0, 0, 0))
             self.minimap.set_colorkey((0, 0, 0))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
