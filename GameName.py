@@ -197,15 +197,21 @@ class Game:
                     if pygame.Rect(bomb.x-self.player.camera.x+2, bomb.y-self.player.camera.y+2, 6, 6).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
                         bomb.should_move_down = False
                         if not bomb.detonate:
-
                             bomb.tiles_to_remove.append(tile)
-
                             for _tile in tile.neighbours:
                                 try:
                                     bomb.tiles_to_remove.append(_tile)
                                     for __tile in self.tiles[self.tiles.index(_tile)].neighbours:
                                         try:
                                             bomb.tiles_to_remove.append(__tile)
+                                            try:
+                                                for ___tile in self.tiles[self.tiles.index(__tile)].neighbours:
+                                                    try:
+                                                        bomb.tiles_to_remove.append(___tile)
+                                                    except ValueError:
+                                                        pass
+                                            except ValueError:
+                                                pass
                                         except ValueError:
                                             pass
                                 except ValueError:
@@ -215,15 +221,12 @@ class Game:
                         bomb.detonate = True
 
                 for enemy in self.enemies:
-                    if str(enemy) == "Worm":
+                    try:
                         if enemy.displaced:
-                            if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
+                            if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16 + (14 * str(enemy) == "Skeleton"), 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
                                 enemy.tile = tile
-
-                    if str(enemy) == "Skeleton":
-                        if enemy.displaced:
-                            if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+30, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
-                                enemy.tile = tile
+                    except:
+                        pass
 
 
 
@@ -243,18 +246,16 @@ class Game:
         self.dimTrans = dimTrans(pygame.Rect(0, 0, 200, 150))
         light_surf = self.display.copy()
 
-        pygame.mouse.set_visible(False)
-        
-        while self.running:
 
+        pygame.mouse.set_cursor(pygame.cursors.Cursor((0, 0), pygame.transform.scale(cursor_img, (16, 16))))
+
+        while self.running:
             self.display.fill((17, 24, 55))
             self.minimap.fill((0, 0, 0))
+            self.minimap.set_colorkey((0, 0, 0))
             pygame.display.set_caption(f"{self.clock.get_fps()}")
 
             self.BackGround.draw(self.display)
-
-            self.global_time += 1
-            display = self.display
             
             self.events = pygame.event.get()
             for event in self.events:
@@ -316,15 +317,6 @@ class Game:
             self.key_presses["a"] = keys[pygame.K_a]
             self.key_presses["d"] = keys[pygame.K_d]
 
-            if self.player.SPEED  == 3:
-                if self.trail_cooldown <= 0 and self.player.moving:
-                    self.trails.append([self.player.walk_images[0].copy(), self.player.rect.x, self.player.rect.y,155])
-                    self.trail_cooldown = 5
-                else:
-                    self.trail_cooldown -= 1
-
-            if self.player.dash > 0:
-                self.player.dash -= 1
 
             self.portal.draw(self.display, self.player.camera)
             
@@ -419,7 +411,7 @@ class Game:
                     eff[2] -= 1
                     if eff[2] <= 0:
                         self.explosion_effects.remove(eff)
-                    pygame.draw.circle(display, (39, 39, 68), (eff[0]-self.player.camera.x,eff[1]-self.player.camera.y), 1)
+                    pygame.draw.circle(self.display, (39, 39, 68), (eff[0]-self.player.camera.x,eff[1]-self.player.camera.y), 1)
             for part in self.explosions:
                     if part[7] <= 0:
                         self.explosions.remove(part)
@@ -431,7 +423,7 @@ class Game:
                     part[7] -= .005
                     if part[6] is False:
                         self.explosion_effects.append([part[0], part[1], 10])
-                    pygame.draw.circle(display, part[5], (part[0]-self.player.camera.x, part[1]-self.player.camera.y), part[4])
+                    pygame.draw.circle(self.display, part[5], (part[0]-self.player.camera.x, part[1]-self.player.camera.y), part[4])
 
             for bomb in self.bombs:
                 bomb.draw(self.display, self.player.camera)
@@ -499,19 +491,10 @@ class Game:
             self.gui_manager.get_element(0).update_text(f"kill goal {self.kills}/{self.kill_goals[self.dimension]}")
         
 
-            mx, my = pygame.mouse.get_pos()
-            mx /= 4
-            my /= 4
-
-            self.display.blit(cursor_img, (mx-8, my-8))
-
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))
 
-
-
-
-            pygame.display.update()
+            pygame.display.flip()
             self.clock.tick(self.FPS)
             await asyncio.sleep(0)
 
