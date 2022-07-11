@@ -58,11 +58,14 @@ class Game:
 
         self.particle_manager = ParticleManager()
 
+        self.map_data = None
+
         with open("assets/map/map.json", "rb") as file:
-            map_data = json.load(file)
+            self.map_data = json.load(file)
+
         self.tiles = []
-        for tile in map_data["map"]:
-            rect = pygame.Rect(tile[0], tile[1], tile[2], tile[3])
+        #for tile in map_data["map"]:
+         #   rect = pygame.Rect(tile[0], tile[1], tile[2], tile[3])
 
         self.player = Player(300, 400)
 
@@ -90,26 +93,32 @@ class Game:
         self.enemy_bullets = []
         random.seed(self.seed)
 
-        self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert(), pygame.image.load('assets/images/backgrounds/lava.png').convert()]
+        self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert(), pygame.image.load('assets/images/backgrounds/lava.png').convert(), pygame.image.load('assets/images/backgrounds/background_1.png').convert()]
 
         self.screen_shake = 0
 
-        self.kill_goals = [10, 11, 20]
-        self.dimension = 0
+        self.kill_goals = [10, 11, 1]
+        self.dimension = -1
 
         self.kills = 0
 
-        self.dimension_tops = [grassy_top, dungeon_top, lava_top]
-        self.dimension_right = [grassy_right, dungeon_right, lava_right]
-        self.dimension_left = [grassy_left, dungeon_left, lava_left]
-        self.dimension_side_left = [grassy_side_left, dungeon_side_left, lava_side_left]
-        self.dimension_side_right = [grassy_side_right, dungeon_side_right, lava_side_right]
-        self.dimension_centers = [base, dungeon_base, lava_base]
+        self.dimension_tops = [grassy_top, dungeon_top, lava_top, grassy_top]
+        self.dimension_right = [grassy_right, dungeon_right, lava_right, grassy_right]
+        self.dimension_left = [grassy_left, dungeon_left, lava_left, grassy_left]
+        self.dimension_side_left = [grassy_side_left, dungeon_side_left, lava_side_left, grassy_side_left]
+        self.dimension_side_right = [grassy_side_right, dungeon_side_right, lava_side_right, grassy_side_right]
+        self.dimension_centers = [base, dungeon_base, lava_base, base]
 
         self.down_decorations = [spike_img, chain_img, lava_imgs]
         self.up_decorations = [mushroom_img]
 
         self.near_tiles = []
+
+        self.regularText = pygame.font.Font('assets/font/font.ttf', 8)
+        self.tut_text1 = self.regularText.render("WASD to move", False, (255, 255, 255))
+        self.tut_text2 = self.regularText.render("Left click to shoot", False, (255, 255, 255))
+        self.tut_text3 = self.regularText.render("Right click to throw bomb", False, (255, 255, 255))
+
     
     def generate_map(self, noise_size, threshold, dimension):
         self.backgroundImage = self.background_imgs[dimension]
@@ -119,14 +128,24 @@ class Game:
         self.decorations = []
         self.enemies = []
 
-        noise = PerlinNoise(octaves=8, seed=self.seed)
-        noise = [[noise([i/noise_size[0], j/noise_size[1]]) 
-        for j in range(noise_size[0])] for i in range(noise_size[1])]
-        for y, row in enumerate(noise):
-            for x, tile in enumerate(row):
-                if tile > threshold and y > 4:
-                    if tile < threshold + 0.4:
-                        self.tiles.append(Tile((x*16, y*16, 16, 16), (100, 100, 100)))
+        if dimension != -1: 
+            noise = PerlinNoise(octaves=8, seed=self.seed)
+            noise = [[noise([i/noise_size[0], j/noise_size[1]]) 
+
+            for j in range(noise_size[0])] for i in range(noise_size[1])]
+            for y, row in enumerate(noise):
+                for x, tile in enumerate(row):
+                    if tile > threshold and y > 4:
+                        if tile < threshold + 0.4:
+                            self.tiles.append(Tile((x*16, y*16, 16, 16), (100, 100, 100)))
+
+        else:
+            for tile in self.map_data["map"]:
+                self.tiles.append(Tile((tile[0], tile[1], tile[2], tile[3]), (100, 100, 100)))
+                self.tiles[-1].image = pygame.image.load(tile[4]).convert()
+                if tile[0] == 624 and tile[1] == 576:
+                    self.enemies.append(Fly(tile[0], tile[1]- 16))
+
 
         for i, tile in enumerate(self.tiles):
             if tile._collision:
@@ -195,6 +214,12 @@ class Game:
         self.near_tiles = []
         for tile in self.tiles:
             if (math.dist([self.player.rect.x, self.player.rect.y], [tile.rect.x, tile.rect.y]) < 100):
+                if self.dimension == -1:
+
+                    self.display.blit(self.tut_text1, (200 - self.player.camera.x, 450 - self.player.camera.y))
+                    self.display.blit(self.tut_text2, (290 - self.player.camera.x, 450 - self.player.camera.y))
+                    self.display.blit(self.tut_text3, (405 - self.player.camera.x, 450 - self.player.camera.y))
+
                 self.near_tiles.append(tile)
                 display.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
                 pygame.draw.rect(self.minimap, (255, 255, 255), (tile.rect.x, tile.rect.y, 16, 16))
@@ -243,8 +268,6 @@ class Game:
                     except:
                         pass
 
-
-
     def glow(self, surf, host, pos, radius, offset=0):
         glow_width = abs(math.sin(offset)*25) + radius *2
 
@@ -254,8 +277,9 @@ class Game:
     async def main(self):
         self.generate_map((75, 50), 0.02, self.dimension)
 
-        self.portal = Portal([0, 0])
-        self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
+        self.portal = Portal([624, 450])
+        if self.dimension != -1:
+            self.portal.place_portal([10, 10], [65, 40], 16, self.tiles)
         self.player.camera = pygame.Vector2(self.portal.position)
 
         self.dimTrans = dimTrans(pygame.Rect(0, 0, 200, 150))
@@ -336,7 +360,8 @@ class Game:
 
             self.portal.draw(self.display, self.player.camera)
             
-            self.portal.player_attract(self.player)
+            if self.kills >= self.kill_goals[self.dimension]:
+                self.portal.player_attract(self.player)
             self.portal.draw(self.minimap, pygame.math.Vector2(0, 0))
 
             self.player.handle_movement(self.key_presses, self.tiles)

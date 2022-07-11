@@ -19,7 +19,9 @@ class Editor:
             self.block_images.append(block[4])
             block.remove(block[4])
 
-        self.tiles = ["assets/images/player_walk1.png"]
+        self.tiles = ["assets/images/grassy_caves/top.png", "assets/images/grassy_caves/right.png", 
+        "assets/images/grassy_caves/left.png", "assets/images/grassy_caves/side_right.png",
+        "assets/images/grassy_caves/side_left.png", "assets/images/example.png"]
 
         self.clicking = False
         self.select_image = None
