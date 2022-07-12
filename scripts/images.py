@@ -96,6 +96,8 @@ LavaCrabImg = pygame.image.load('assets/images/lava_cave/LavaCrab.png').convert(
 MagicOrbImage = pygame.image.load('assets/images/lava_cave/MagicOrbImg.png').convert()
 MagicOrbImage.set_colorkey((255, 255, 255))
 
+bat_hit_img = load_img("green_cave/bat_hit", base="images")
+
 alphabet = {
     "a": load_img("a", (0,0,0)),
     "b": load_img("b", (0,0,0)),
