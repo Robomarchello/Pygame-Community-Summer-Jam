@@ -1,4 +1,3 @@
-#WARNING: This code is messy
 
 import pygame
 import asyncio
@@ -9,7 +8,7 @@ from scripts.tile import Tile
 from scripts.gui import Text, GuiManager, HealthBar
 from scripts.images import *
 from scripts.particle import Particle, ParticleManager
-from scripts.enemy import Worm, Fly, Skeleton
+from scripts.enemy import Worm, Fly, Skeleton, LavaCrab
 from scripts.portal import Portal
 from scripts.dimension_transition import dimTrans
 from scripts.bullet import Bullet
@@ -99,7 +98,7 @@ class Game:
         self.screen_shake = 0
 
         self.kill_goals = [10, 11, 1]
-        self.dimension = 1
+        self.dimension = 2#-1
 
         self.kills = 0
 
@@ -146,7 +145,7 @@ class Game:
             for tile in self.map_data["map"]:
                 self.tiles.append(Tile((tile[0], tile[1], tile[2], tile[3]), (100, 100, 100)))
                 self.tiles[-1].image = pygame.image.load(tile[4]).convert()
-                if tile[0] == 624 and tile[1] == 544:
+                if tile[0] == 624 and tile[1] == 576:
                     self.enemies.append(Fly(tile[0], tile[1]- 16))
 
 
@@ -202,6 +201,7 @@ class Game:
                             self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+16, tile])
                         elif dimension == 2:
                             if random.randrange(0, 3) == 2:
+                                
                                 count = 1
                                 while pygame.Rect(tile.rect.x, tile.rect.y + count * 16, 16, 16) not in self.tiles:
                                     count += 1
@@ -210,10 +210,37 @@ class Game:
                                     else:
                                         break
                                 
+                                #if not tile in self.tiles:
+                                if count > 3:
+                                    CrabRectLeft = pygame.Rect(tile.rect.x - 15, tile.rect.y, 16, 16)
+                                    CrabRectRight = pygame.Rect(tile.rect.x + 15, tile.rect.y, 16, 16)
+                                    CollideLeft = False
+                                    CollideRight = False
+                                    for tile in self.tiles:
+                                        if tile.collision(CrabRectLeft):
+                                            CollideLeft = True
+
+                                        if tile.collision(CrabRectRight):
+                                            CollideRight = True
+                                    
+                                    if not CollideLeft and not CollideRight:
+                                        if not CollideLeft:
+                                            self.enemies.append(LavaCrab(CrabRectLeft.x, CrabRectLeft.y, tile, False, count-1, tile))
+
+                                        elif not CollideRight:
+                                            self.enemies.append(LavaCrab(CrabRectRight.x, CrabRectRight.y, tile, True, count-1, tile))
+                                    
+                                    else:
+                                        randomDir = random.choice([CrabRectLeft, CrabRectRight])
+                                        direction = [False, True][[CrabRectLeft, CrabRectRight].index(randomDir)]
+
+                                        self.enemies.append(LavaCrab(randomDir.x, randomDir.y, tile, direction, count-1, tile))
+                                    
     def render_map(self, display: pygame.Surface, tiles: List[Tile]) -> None:
         """
         Renders the games tiles
         """
+        self.near_tiles = []
         for tile in self.tiles:
             if (math.dist([self.player.rect.x, self.player.rect.y], [tile.rect.x, tile.rect.y]) < 100):
                 if self.dimension == -1:
@@ -222,6 +249,7 @@ class Game:
                     self.display.blit(self.tut_text2, (290 - self.player.camera.x, 450 - self.player.camera.y))
                     self.display.blit(self.tut_text3, (405 - self.player.camera.x, 450 - self.player.camera.y))
 
+                self.near_tiles.append(tile)
                 display.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
                 pygame.draw.rect(self.minimap, (255, 255, 255), (tile.rect.x, tile.rect.y, 16, 16))
                 #self.minimap.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
@@ -262,17 +290,12 @@ class Game:
                         bomb.detonate = True
 
                 for enemy in self.enemies:
-                    if math.dist([self.player.rect.x, self.player.rect.y], [enemy.x, enemy.y]) < 50:
-                        try:
-                            if enemy.displaced:
-                                if str(enemy) == "Worm":
-                                    if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
-                                        enemy.tile = tile
-                                elif str(enemy) == "Skeleton":
-                                    if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+30, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
-                                        enemy.tile = tile
-                        except:
-                            pass
+                    try:
+                        if enemy.displaced:
+                            if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16 + (14 * str(enemy) == "Skeleton"), 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
+                                enemy.tile = tile
+                    except:
+                        pass
 
     def glow(self, surf, host, pos, radius, offset=0):
         glow_width = abs(math.sin(offset)*25) + radius *2
@@ -290,7 +313,7 @@ class Game:
 
         self.dimTrans = dimTrans(pygame.Rect(0, 0, 200, 150))
         light_surf = self.display.copy()
-        pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP])
+
 
         pygame.mouse.set_cursor(pygame.cursors.Cursor((0, 0), pygame.transform.scale(cursor_img, (16, 16))))
 
@@ -411,6 +434,9 @@ class Game:
                         self.kills += 1
                     enemy.draw(self.display, self.player.camera, self.player, self)
 
+                if str(enemy) == "LavaCrab":
+                    enemy.draw(self.display, self.player.camera, self.player, self)
+
             self.render_map(self.display, self.tiles)
 
             self.particle_manager.manage_particles(self.display, self.player.camera)
@@ -424,13 +450,15 @@ class Game:
                         bullet_rect = pygame.Rect(bullet.x, bullet.y, 16, 16)
                         enemy_rect = pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 16) if str(enemy) != "Skeleton" else pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 32)
                         if bullet_rect.colliderect(enemy_rect):
-                            enemy.image = fly_hit_img if str(enemy) == "Fly" else skeleton_hit_img
+                            if not str(enemy) == 'LavaCrab':
+                                enemy.image = fly_hit_img if str(enemy) == "Fly" else skeleton_hit_img
+                                self.bullets.remove(bullet)
                             enemy.hitcooldown = 10
                             self.bullets.remove(bullet)
                             if str(enemy) != "Skeleton":
                                 enemy.x -= bullet.x_vel / 2 
                                 enemy.y -= bullet.y_vel  / 2
-                            for i in range(3):
+                            for i in range(10):
                                 self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
                             self.screen_shake += 5
                             enemy.health -= 1
@@ -453,6 +481,19 @@ class Game:
                         animation_index = animate(decoration[0], decoration[-1], 5)
                         self.decorations[i][-1] = animation_index
                         self.display.blit(decoration[0][animation_index // 5], (decoration[1]-self.player.camera.x, decoration[2]-self.player.camera.y))
+                
+                else:
+                    for enemy in self.enemies:
+                        if str(enemy) == 'LavaCrab':
+                            if enemy.lavaPillar == decoration:
+                                self.enemies.remove(enemy)
+                    self.decorations.pop(i)
+                    
+                    #for enemy in self.enemies:
+                    #    if str(enemy) == 'LavaCrab':
+                    #        print(decoration)
+                    #        if decoration[3].rect.colliderect(enemy.rect):
+                    #            self.enemies.remove(enemy)
 
             for trail in self.trails:
                 if trail[3] < 0:
@@ -489,7 +530,7 @@ class Game:
                         self.explosions.append([bomb.x, bomb.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
                     for tile in bomb.tiles_to_remove:
                         try:
-                            self.tiles.remove(tile)
+                            self.tiles.remove(tile) 
                         except ValueError:
                             pass
                     self.bombs.remove(bomb)
