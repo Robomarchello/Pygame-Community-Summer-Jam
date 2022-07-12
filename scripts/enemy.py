@@ -218,3 +218,81 @@ class Worm(Entity):
             self.image = worm_walk_imgs[0]
 
         display.blit(pygame.transform.flip(self.image, not self.looking_right, False), (self.x-camera.x, self.y-camera.y))
+
+class LavaCrab(Entity):
+    def __init__(self, x, y, tile, lookDir, LavaLen, lavaPillar):
+        super().__init__(x, y)
+        self.lavaPillar = lavaPillar
+
+        self.velocity = pygame.Vector2(0, 1)
+        self.moveDir = {'up': False, 'down': False}
+
+        self.timer = 10
+
+        self.health = 2
+
+        self.has_died = False
+        self.wait_time = 10
+        self.has_reset = False
+        self.tile = tile
+
+        self.y_vel = 4
+
+        self.displaced = False
+
+        self.bullet_cooldown = 0
+
+        self.img = None
+        self.image = pygame.transform.flip(LavaCrabImg, lookDir, False)
+
+        self.rect = self.image.get_rect(topleft=(x, y))
+
+        self.LavaLen = LavaLen
+
+        self.MinY = self.rect.copy().y + 16
+        self.MaxY = self.rect.copy().y + (16 * LavaLen)
+
+        self.rect.y += 16
+
+        self.hitcooldown = 0
+        self.bullet_patterns = [[0.5, 0], [-0.5, 0], [0, 0.5], [0, -0.5], [0.25, 0.25], [-0.25, 0.25], [0.25, -0.25], [-0.25, -0.25]]
+
+        self.CamRect = pygame.Rect
+        
+
+    def __repr__(self):
+        return "LavaCrab"
+
+    def ChangeDir(self, camera, game):      
+        if self.rect.y < self.MinY or self.rect.y > self.MaxY:
+            self.velocity *= -1
+
+    def move(self, camera, game):
+        self.rect.topleft += self.velocity
+
+        self.ChangeDir(camera, game)
+
+    def draw(self, display, camera, player, game):
+        #I don't know what is this, but that looks cool
+        if self.tile not in game.tiles:
+            self.displaced = True
+        else:
+            self.displaced = False
+
+        self.move(camera, game)
+
+        self.img = self.image
+        self.img.set_colorkey((255, 255, 255))
+
+        self.CamRect = self.rect.copy()
+        self.CamRect.topleft -= pygame.Vector2(camera.x, camera.y)
+
+        if math.dist([self.rect.x, self.rect.y], [player.rect.x, player.rect.y]) < 100:
+            if self.bullet_cooldown <= 0:
+                for pattern in self.bullet_patterns:
+                    game.enemy_bullets.append([self.rect.x, self.rect.y, pattern, 400])
+                self.bullet_cooldown = 300
+            else:
+                self.bullet_cooldown -= 1
+
+        display.blit(self.image, self.CamRect.topleft)
