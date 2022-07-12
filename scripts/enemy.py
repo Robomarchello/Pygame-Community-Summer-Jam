@@ -93,7 +93,62 @@ class Skeleton(Entity):
 
         display.blit(pygame.transform.flip(self.image, not self.moving_right, False), (self.x - camera.x, self.y - camera.y))
 
+class GreenBat(Entity):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+
+        self.images = [self.load_image("green_cave/bat_fly1"), self.load_image("green_cave/bat_fly2"), self.load_image("green_cave/bat_fly3"), self.load_image("green_cave/bat_fly4")]
+        self.animation_index = 0
+
+        self.health = 10
+
+        self.image = None
+
+        self.hitcooldown = 0
+        self.bullet_cooldown = 0
+
+        self.bullet_patterns = [                    [0, 1], [0, -1], 
+                
+                    [0.8, 0.8], [-0.8, 0.8], 
+                    [-0.8, -0.8], [0.8, -0.8]]
+
+        self.offset_x = random.randrange(-90, 90)
+        self.offset_y = random.randrange(-90, 90)
+
+        self.offset_reset_cooldown = 0
+
+
+    def __repr__(self):
+        return "GreenBat"
+
+    def draw(self, display, camera, player, game):
+        if math.dist([self.x, self.y], [player.rect.x, player.rect.y]) < 100:
+            self.rect = pygame.Rect(self.x-camera.x, self.y-camera.y, 16, 16)
+            movement_vector = self.move_towards(player.rect.x-camera.x + self.offset_x, player.rect.y-camera.y + self.offset_y, 1)
+            self.x += movement_vector[0] 
+            self.y += movement_vector[1] 
+            if self.bullet_cooldown <= 0:
+                for pattern in self.bullet_patterns:
+                    game.enemy_bullets.append([self.x, self.y, pattern, 400])
+                self.bullet_cooldown = random.randrange(80, 100)
+            else:
+                self.bullet_cooldown -= 1
+
+        if self.offset_reset_cooldown <= 0:
+            self.offset_x = random.randrange(-90, 90)
+            self.offset_y = random.randrange(-90, 90)
+            self.offset_reset_cooldown = 40
+        else:
+            self.offset_reset_cooldown -= 1
         
+        if self.hitcooldown > 0:
+            self.hitcooldown -= 1
+        if self.hitcooldown == 0:
+            self.image = self.images[self.animation_index // 15]
+
+        self.animation_index = self.animate(self.images, self.animation_index, 15)
+        display.blit(self.image, (self.x - camera.x, self.y - camera.y))
+    
 
 class Fly(Entity):
     def __init__(self, x, y):
@@ -129,7 +184,6 @@ class Fly(Entity):
             else:
                 self.bullet_cooldown -= 1
             
-
         if self.hitcooldown > 0:
             self.hitcooldown -= 1
         if self.hitcooldown == 0:

@@ -8,7 +8,7 @@ from scripts.tile import Tile
 from scripts.gui import Text, GuiManager, HealthBar
 from scripts.images import *
 from scripts.particle import Particle, ParticleManager
-from scripts.enemy import Worm, Fly, Skeleton, LavaCrab
+from scripts.enemy import Worm, Fly, Skeleton, LavaCrab, GreenBat
 from scripts.portal import Portal
 from scripts.dimension_transition import dimTrans
 from scripts.bullet import Bullet
@@ -171,9 +171,9 @@ class Game:
                     elif dimension == 1:
                         if random.randrange(0, 5) == 3:
                             self.enemies.append(Skeleton(tile.rect.x, tile.rect.y-32, tile))
-                    elif dimension == 2:
-                        pass
-                        #TODO: The lava dimension needs enemys :)
+                    elif dimension == 3:
+                        if random.randrange(0, 5) == 3:
+                            self.enemies.append(GreenBat(tile.rect.x, tile.rect.y-32))
 
                     if random.randrange(0, 30) == 5:
                         self.decorations.append([mushroom_img, tile.rect.x, tile.rect.y-16, tile])
@@ -451,13 +451,18 @@ class Game:
                         enemy_rect = pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 16) if str(enemy) != "Skeleton" else pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 32)
                         if bullet_rect.colliderect(enemy_rect):
                             if not str(enemy) == 'LavaCrab':
-                                enemy.image = fly_hit_img if str(enemy) == "Fly" else skeleton_hit_img
+                                if str(enemy) == "Fly":
+                                    enemy.image = fly_hit_img 
+                                elif str(enemy) == "Skeleton":
+                                    enemy.image = skeleton_hit_img
+                                else:
+                                    enemy.image = bat_hit_img
                                 self.bullets.remove(bullet)
                             enemy.hitcooldown = 10
                             try:
                                 self.bullets.remove(bullet)
                             except ValueError as e:
-                                print(e)
+                                pass
                             if str(enemy) != "Skeleton":
                                 enemy.x -= bullet.x_vel / 2 
                                 enemy.y -= bullet.y_vel  / 2

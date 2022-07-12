@@ -89,6 +89,8 @@ worm_hit_img = load_img("worm_hit", base="images")
 
 fly_hit_img = load_img("fly_hit", base="images")
 
+bat_hit_img = load_img("green_cave/bat_hit", base="images")
+
 lava_imgs = [load_img("lava1", base="images/lava_cave"), load_img("lava2", base="images/lava_cave"),
 load_img("lava3", base="images/lava_cave"), load_img("lava4", base="images/lava_cave")]
 
