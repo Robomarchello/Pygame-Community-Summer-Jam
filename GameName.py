@@ -1,3 +1,4 @@
+#WARNING: This code is messy
 
 import pygame
 import asyncio
@@ -98,7 +99,7 @@ class Game:
         self.screen_shake = 0
 
         self.kill_goals = [10, 11, 1]
-        self.dimension = -1
+        self.dimension = 1
 
         self.kills = 0
 
@@ -145,7 +146,7 @@ class Game:
             for tile in self.map_data["map"]:
                 self.tiles.append(Tile((tile[0], tile[1], tile[2], tile[3]), (100, 100, 100)))
                 self.tiles[-1].image = pygame.image.load(tile[4]).convert()
-                if tile[0] == 624 and tile[1] == 576:
+                if tile[0] == 624 and tile[1] == 544:
                     self.enemies.append(Fly(tile[0], tile[1]- 16))
 
 
@@ -213,7 +214,6 @@ class Game:
         """
         Renders the games tiles
         """
-        self.near_tiles = []
         for tile in self.tiles:
             if (math.dist([self.player.rect.x, self.player.rect.y], [tile.rect.x, tile.rect.y]) < 100):
                 if self.dimension == -1:
@@ -222,7 +222,6 @@ class Game:
                     self.display.blit(self.tut_text2, (290 - self.player.camera.x, 450 - self.player.camera.y))
                     self.display.blit(self.tut_text3, (405 - self.player.camera.x, 450 - self.player.camera.y))
 
-                self.near_tiles.append(tile)
                 display.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
                 pygame.draw.rect(self.minimap, (255, 255, 255), (tile.rect.x, tile.rect.y, 16, 16))
                 #self.minimap.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
@@ -263,12 +262,17 @@ class Game:
                         bomb.detonate = True
 
                 for enemy in self.enemies:
-                    try:
-                        if enemy.displaced:
-                            if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16 + (14 * str(enemy) == "Skeleton"), 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
-                                enemy.tile = tile
-                    except:
-                        pass
+                    if math.dist([self.player.rect.x, self.player.rect.y], [enemy.x, enemy.y]) < 50:
+                        try:
+                            if enemy.displaced:
+                                if str(enemy) == "Worm":
+                                    if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
+                                        enemy.tile = tile
+                                elif str(enemy) == "Skeleton":
+                                    if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+30, 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
+                                        enemy.tile = tile
+                        except:
+                            pass
 
     def glow(self, surf, host, pos, radius, offset=0):
         glow_width = abs(math.sin(offset)*25) + radius *2
@@ -286,7 +290,7 @@ class Game:
 
         self.dimTrans = dimTrans(pygame.Rect(0, 0, 200, 150))
         light_surf = self.display.copy()
-
+        pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP])
 
         pygame.mouse.set_cursor(pygame.cursors.Cursor((0, 0), pygame.transform.scale(cursor_img, (16, 16))))
 
@@ -426,7 +430,7 @@ class Game:
                             if str(enemy) != "Skeleton":
                                 enemy.x -= bullet.x_vel / 2 
                                 enemy.y -= bullet.y_vel  / 2
-                            for i in range(10):
+                            for i in range(3):
                                 self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
                             self.screen_shake += 5
                             enemy.health -= 1

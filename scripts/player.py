@@ -54,10 +54,6 @@ class Player(Entity):
         """
         return_tiles = []
         for tile in tiles:
-            if tile._collision:
-           #     if (math.dist([self.rect.x, self.rect.y], [tile.rect.x, tile.rect.y]) < 25):
-            #        return_tiles.append(tile)
-
                 if tile.rect.colliderect(player_rect):
                     return_tiles.append(tile)
 
@@ -112,7 +108,6 @@ class Player(Entity):
             self.player_movement["horizontal"] += self.SPEED
             self.moving_right = True
 
-
         if self.y_velocity < 3:
             self.y_velocity += 0.2
 
@@ -121,7 +116,6 @@ class Player(Entity):
     def get_pos(self):
         return (self.x-self.camera.x, self.y-self.camera.y)
 
-    
     def get_rect(self):
         return pygame.Rect(self.rect.x-self.camera.x, self.rect.y-self.camera.y, 16, 16)
 
