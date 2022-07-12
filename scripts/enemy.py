@@ -93,63 +93,7 @@ class Skeleton(Entity):
 
         display.blit(pygame.transform.flip(self.image, not self.moving_right, False), (self.x - camera.x, self.y - camera.y))
 
-class GreenBat(Entity):
-    def __init__(self, x, y):
-        super().__init__(x, y)
-
-        self.images = [self.load_image("green_cave/bat_fly1"), self.load_image("green_cave/bat_fly2"), self.load_image("green_cave/bat_fly3"), self.load_image("green_cave/bat_fly4")]
-        self.animation_index = 0
-
-        self.health = 10
-
-        self.image = None
-
-        self.hitcooldown = 0
-        self.bullet_cooldown = 0
-
-        self.bullet_patterns = [                    [0, 1], [0, -1], 
-                
-                    [0.8, 0.8], [-0.8, 0.8], 
-                    [-0.8, -0.8], [0.8, -0.8]]
-
-        self.offset_x = random.randrange(-90, 90)
-        self.offset_y = random.randrange(-90, 90)
-
-        self.offset_reset_cooldown = 0
-
-
-    def __repr__(self):
-        return "GreenBat"
-
-    def draw(self, display, camera, player, game):
-        if math.dist([self.x, self.y], [player.rect.x, player.rect.y]) < 100:
-            self.rect = pygame.Rect(self.x-camera.x, self.y-camera.y, 16, 16)
-            movement_vector = self.move_towards(player.rect.x-camera.x + self.offset_x, player.rect.y-camera.y + self.offset_y, 1)
-            self.x += movement_vector[0] 
-            self.y += movement_vector[1] 
-            if self.bullet_cooldown <= 0:
-                for pattern in self.bullet_patterns:
-                    game.enemy_bullets.append([self.x, self.y, pattern, 400])
-                self.bullet_cooldown = random.randrange(80, 100)
-            else:
-                self.bullet_cooldown -= 1
-
-        if self.offset_reset_cooldown <= 0:
-            self.offset_x = random.randrange(-90, 90)
-            self.offset_y = random.randrange(-90, 90)
-            self.offset_reset_cooldown = 40
-        else:
-            self.offset_reset_cooldown -= 1
         
-        if self.hitcooldown > 0:
-            self.hitcooldown -= 1
-        if self.hitcooldown == 0:
-            self.image = self.images[self.animation_index // 15]
-
-        self.animation_index = self.animate(self.images, self.animation_index, 15)
-        display.blit(self.image, (self.x - camera.x, self.y - camera.y))
-    
-
 class Fly(Entity):
     def __init__(self, x, y):
         super().__init__(x, y)
@@ -184,6 +128,7 @@ class Fly(Entity):
             else:
                 self.bullet_cooldown -= 1
             
+
         if self.hitcooldown > 0:
             self.hitcooldown -= 1
         if self.hitcooldown == 0:
@@ -327,7 +272,6 @@ class LavaCrab(Entity):
         self.ChangeDir(camera, game)
 
     def draw(self, display, camera, player, game):
-        #I don't know what is this, but that looks cool
         if self.tile not in game.tiles:
             self.displaced = True
         else:
@@ -350,3 +294,48 @@ class LavaCrab(Entity):
                 self.bullet_cooldown -= 1
 
         display.blit(self.image, self.CamRect.topleft)
+
+class MagicOrb(Entity):
+    def __init__(self, x, y, tile):
+        super().__init__(x, y)
+
+        self.health = 5
+        self.tile = tile
+
+        self.image = MagicOrbImage
+        self.rect = self.image.get_rect(topleft=(x, y))
+
+        self.collisions = []
+
+        self.bullet_cooldown = 0
+
+        self.displaced = False
+
+    def __repr__(self):
+        return "MagicOrb"
+
+    def draw(self, display, camera, player, game):
+        if self.tile not in game.tiles:
+            self.displaced = True
+        else:
+            self.displaced = False
+
+        distance = math.dist([player.rect.x, player.rect.y], [self.x, self.y])
+        
+        if self.bullet_cooldown <= 0 and distance < 250:
+            for i in range(5):
+                x = self.x-camera.x + 5
+                y = self.y-camera.y
+                px = player.rect.x-camera.x+random.randrange(-60, 60)
+                py = player.rect.y-camera.y+random.randrange(-60, 60)
+
+                angle = math.atan2(y-py, x-px)
+                x_vel = math.cos(angle) * 1
+                y_vel = math.sin(angle) * 1
+
+                game.enemy_bullets.append([self.x, self.y, [x_vel, y_vel], 400])
+            self.bullet_cooldown = random.randrange(30, 45)
+        else:
+            self.bullet_cooldown -= 1
+
+        display.blit(self.image, (self.x - camera.x, self.y - camera.y))
