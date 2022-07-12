@@ -93,21 +93,21 @@ class Game:
         self.enemy_bullets = []
         random.seed(self.seed)
 
-        self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert(), pygame.image.load('assets/images/backgrounds/lava.png').convert(), pygame.image.load('assets/images/backgrounds/background_1.png').convert()]
+        self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert(), pygame.image.load('assets/images/backgrounds/lava.png').convert(), pygame.image.load('assets/images/backgrounds/green.png').convert(), pygame.image.load('assets/images/backgrounds/background_1.png').convert()]
 
         self.screen_shake = 0
 
-        self.kill_goals = [10, 11, 1]
-        self.dimension = 2#-1
+        self.kill_goals = [10, 11, 1,1]
+        self.dimension = 3
 
         self.kills = 0
 
-        self.dimension_tops = [grassy_top, dungeon_top, lava_top, grassy_top]
-        self.dimension_right = [grassy_right, dungeon_right, lava_right, grassy_right]
-        self.dimension_left = [grassy_left, dungeon_left, lava_left, grassy_left]
-        self.dimension_side_left = [grassy_side_left, dungeon_side_left, lava_side_left, grassy_side_left]
-        self.dimension_side_right = [grassy_side_right, dungeon_side_right, lava_side_right, grassy_side_right]
-        self.dimension_centers = [base, dungeon_base, lava_base, base]
+        self.dimension_tops = [grassy_top, dungeon_top, lava_top, green_top, grassy_top]
+        self.dimension_right = [grassy_right, dungeon_right, lava_right, green_right, grassy_right]
+        self.dimension_left = [grassy_left, dungeon_left, lava_left, green_left, grassy_left]
+        self.dimension_side_left = [grassy_side_left, dungeon_side_left, lava_side_left, green_side_left, grassy_side_left]
+        self.dimension_side_right = [grassy_side_right, dungeon_side_right, lava_side_right, green_side_right, grassy_side_right]
+        self.dimension_centers = [base, dungeon_base, lava_base, green_base, base]
 
         self.down_decorations = [spike_img, chain_img, lava_imgs]
         self.up_decorations = [mushroom_img]
@@ -119,7 +119,7 @@ class Game:
         self.tut_text2 = self.regularText.render("Left click to shoot", False, (255, 255, 255))
         self.tut_text3 = self.regularText.render("Right click to throw bomb", False, (255, 255, 255))
 
-        self.bg_colors = [(17, 24, 55), (0, 10, 3), (23, 23, 17), (17, 24, 55)]
+        self.bg_colors = [(17, 24, 55), (0, 10, 3), (23, 23, 17), (17, 24, 55), (0, 0, 0)]
 
     
     def generate_map(self, noise_size, threshold, dimension):
@@ -454,7 +454,10 @@ class Game:
                                 enemy.image = fly_hit_img if str(enemy) == "Fly" else skeleton_hit_img
                                 self.bullets.remove(bullet)
                             enemy.hitcooldown = 10
-                            self.bullets.remove(bullet)
+                            try:
+                                self.bullets.remove(bullet)
+                            except ValueError as e:
+                                print(e)
                             if str(enemy) != "Skeleton":
                                 enemy.x -= bullet.x_vel / 2 
                                 enemy.y -= bullet.y_vel  / 2
