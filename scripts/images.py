@@ -93,8 +93,12 @@ lava_imgs = [load_img("lava1", base="images/lava_cave"), load_img("lava2", base=
 load_img("lava3", base="images/lava_cave"), load_img("lava4", base="images/lava_cave")]
 
 LavaCrabImg = pygame.image.load('assets/images/lava_cave/LavaCrab.png').convert()
+LavaCrabHit = pygame.image.load('assets/images/lava_cave/LavaCrabHit.png').convert()
+
 MagicOrbImage = pygame.image.load('assets/images/lava_cave/MagicOrbImg.png').convert()
 MagicOrbImage.set_colorkey((255, 255, 255))
+MagicOrbHit = pygame.image.load('assets/images/lava_cave/MagicOrbHit.png').convert()
+MagicOrbHit.set_colorkey((255, 255, 255))
 
 bat_hit_img = load_img("green_cave/bat_hit", base="images")
 

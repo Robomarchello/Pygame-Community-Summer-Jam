@@ -352,6 +352,8 @@ class LavaCrab(Entity):
         self.ChangeDir(camera, game)
 
     def draw(self, display, camera, player, game):
+        self.x = self.rect.x
+        self.y = self.rect.y
         if self.tile not in game.tiles:
             self.displaced = True
         else:
@@ -373,7 +375,13 @@ class LavaCrab(Entity):
             else:
                 self.bullet_cooldown -= 1
 
+        if self.hitcooldown > 0:
+            self.hitcooldown -= 1
+        if self.hitcooldown >= 0:
+            self.image = LavaCrabImg
+
         display.blit(self.image, self.CamRect.topleft)
+
 
 class MagicOrb(Entity):
     def __init__(self, x, y, tile):
@@ -388,6 +396,7 @@ class MagicOrb(Entity):
         self.collisions = []
 
         self.bullet_cooldown = 0
+        self.hitcooldown = 0
 
         self.displaced = False
 
@@ -402,7 +411,7 @@ class MagicOrb(Entity):
 
         distance = math.dist([player.rect.x, player.rect.y], [self.x, self.y])
         
-        if self.bullet_cooldown <= 0 and distance < 250:
+        if self.bullet_cooldown <= 0 and distance < 150:
             for i in range(5):
                 x = self.x-camera.x + 5
                 y = self.y-camera.y
@@ -414,8 +423,15 @@ class MagicOrb(Entity):
                 y_vel = math.sin(angle) * 1
 
                 game.enemy_bullets.append([self.x, self.y, [x_vel, y_vel], 400])
-            self.bullet_cooldown = random.randrange(30, 45)
+            self.bullet_cooldown = 200
         else:
             self.bullet_cooldown -= 1
+
+
+        if self.hitcooldown > 0:
+            self.hitcooldown -= 1
+        if self.hitcooldown == 0:
+            self.image = MagicOrbImage
+
 
         display.blit(self.image, (self.x - camera.x, self.y - camera.y))

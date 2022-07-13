@@ -97,7 +97,7 @@ class Game:
 
         self.screen_shake = 0
         self.kill_goals = [10, 11, 1, 3, 1]
-        self.dimension = 3
+        self.dimension = 2
         self.kills = 0
 
         self.light_surf = None
@@ -481,13 +481,18 @@ class Game:
                         bullet_rect = pygame.Rect(bullet.x, bullet.y, 16, 16)
                         enemy_rect = pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 16) if str(enemy) != "Skeleton" else pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 16, 32)
                         if bullet_rect.colliderect(enemy_rect):
-                            if not str(enemy) == 'LavaCrab':
-                                if str(enemy) == "Fly":
-                                    enemy.image = fly_hit_img 
-                                elif str(enemy) == "Skeleton":
-                                    enemy.image = skeleton_hit_img
-                                else:
+                            if str(enemy) == "Fly":
+                                enemy.image = fly_hit_img 
+                            elif str(enemy) == "Skeleton":
+                                enemy.image = skeleton_hit_img
+                            else:
                                     enemy.image = bat_hit_img
+                            if str(enemy) == "LavaCrab":
+                                enemy.image = LavaCrabHit
+                                
+                            if str(enemy) == "MagicOrb":
+                                enemy.image = MagicOrbHit
+                                
                                 self.bullets.remove(bullet)
                             enemy.hitcooldown = 10
                             try:
