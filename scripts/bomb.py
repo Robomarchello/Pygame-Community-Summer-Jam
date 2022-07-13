@@ -8,17 +8,13 @@ class Bomb(Entity):
 
         self.direction = direction
         self.y_vel = -4
-
         self.should_move_down = True
-
         self.animation_index = 0
         self.countdown = 0
-
         self.images = [self.load_image("bomb1"), self.load_image("bomb2")]
-
         self.detonate = False
-
         self.tiles_to_remove = []
+        self.should_play_click_sound_cooldown = 0
 
     def draw(self, display, camera):
         self.y_vel += 0.3

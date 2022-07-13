@@ -126,8 +126,9 @@ class Game:
 
         self.jump_sound = pygame.mixer.Sound("assets/sounds/jump.wav")
         self.shoot_sound = pygame.mixer.Sound("assets/sounds/shoot.wav")
-
-
+        self.explosion_sound = pygame.mixer.Sound("assets/sounds/explosion.wav")
+        self.explosion_countdown_sound = pygame.mixer.Sound("assets/sounds/click.wav")
+        self.hit_sound = pygame.mixer.Sound("assets/sounds/hit.wav")
     
     def generate_map(self, noise_size, threshold, dimension):
         self.backgroundImage = self.background_imgs[dimension]
@@ -547,8 +548,15 @@ class Game:
                 bomb.draw(self.display, self.player.camera)
                 if bomb.countdown > 0:
                     bomb.countdown -= 1
+
+                if bomb.should_play_click_sound_cooldown <= 0:
+                    self.explosion_countdown_sound.play()
+                    bomb.should_play_click_sound_cooldown = 10
+                else:
+                    bomb.should_play_click_sound_cooldown -= 1
                 if bomb.countdown <= 0 and not bomb.should_move_down:
                     self.screen_shake += 10
+                    self.explosion_sound.play()
                     for i in range(200):
                         self.explosions.append([bomb.x, bomb.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
                     for tile in bomb.tiles_to_remove:
@@ -572,6 +580,7 @@ class Game:
                     for i in range(10):
                         self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
                     self.player.hp -= 1
+                    self.hit_sound.play()
                     self.gui_manager.get_element(1).update_hp(self.player.hp)
                     self.enemy_bullets.remove(bullet)
 
