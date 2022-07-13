@@ -381,7 +381,8 @@ class Game:
                         self.player.dash = 15
 
                     if event.button == 3:
-                        self.bombs.append(Bomb(self.player.rect.x, self.player.rect.y, int(self.player.moving_right)))
+                        if len(self.bombs) < 2:
+                            self.bombs.append(Bomb(self.player.rect.x, self.player.rect.y, int(self.player.moving_right)))
                         
 
                 if event.type == pygame.MOUSEBUTTONUP:
