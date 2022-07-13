@@ -98,7 +98,7 @@ class Game:
         self.screen_shake = 0
 
         self.kill_goals = [10, 11, 1,1]
-        self.dimension = 3
+        self.dimension =-1
 
         self.kills = 0
 
@@ -120,6 +120,13 @@ class Game:
         self.tut_text3 = self.regularText.render("Right click to throw bomb", False, (255, 255, 255))
 
         self.bg_colors = [(17, 24, 55), (0, 10, 3), (23, 23, 17), (17, 24, 55), (0, 0, 0)]
+
+        pygame.mixer.music.load("assets/sounds/main_music.mp3")
+        pygame.mixer.music.play(-1)
+
+        self.jump_sound = pygame.mixer.Sound("assets/sounds/jump.wav")
+        self.shoot_sound = pygame.mixer.Sound("assets/sounds/shoot.wav")
+
 
     
     def generate_map(self, noise_size, threshold, dimension):
@@ -338,11 +345,13 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         if self.player.is_on_ground:
+                            self.jump_sound.play()
                             self.player.y_velocity -= self.player.JUMP_HEIGHT
                             self.player.jump_count += 1
                             for i in range(15):
                                 self.particle_manager.particles.append(Particle(self.player.rect.x, self.player.rect.y, random.randrange(5, 10), random.randrange(-3, 3), 0, True, random.randrange(3, 6), True))
                         if not self.player.is_on_ground and self.player.jump_count < 2:
+                            self.jump_sound.play()
                             self.player.y_velocity = 1
                             self.player.y_velocity -= self.player.JUMP_HEIGHT 
                             self.player.jump_count += 1
@@ -371,6 +380,7 @@ class Game:
                 
             if self.clicking:
                 if self.shoot_cooldown <= 0:
+                    self.shoot_sound.play()
                     self.screen_shake += 2
                     mx, my = pygame.mouse.get_pos()
                     mx /= 4
