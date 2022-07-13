@@ -18,7 +18,7 @@ from scripts.enemy_bullet import EnemyBullet
 from scripts.background_scroll import BackGround
 from scripts.game_over import GameOver
 
-import random
+from random import randrange, seed, randint, random, choice
 from typing import List
 
 import json
@@ -73,7 +73,7 @@ class Game:
 
         self.gui_manager = GuiManager([Text(60, 10, "kill goal", 40), HealthBar(self.player, pygame.Rect(56, 130 , 75, 12), self.GameOver)]) 
 
-        self.seed = random.randrange(-1000000, 1000000)
+        self.seed = randrange(-1000000, 1000000)
         self.enemies = []
 
         self.scale_x = 800
@@ -91,7 +91,7 @@ class Game:
         self.explosions = []
         self.bombs = []
         self.enemy_bullets = []
-        random.seed(self.seed)
+        seed(self.seed)
 
         self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert(), pygame.image.load('assets/images/backgrounds/lava.png').convert(), pygame.image.load('assets/images/backgrounds/green.png').convert(), pygame.image.load('assets/images/backgrounds/background_1.png').convert()]
 
@@ -142,7 +142,7 @@ class Game:
     def generate_map(self, noise_size, threshold, dimension):
         self.backgroundImage = self.background_imgs[dimension]
         self.BackGround = BackGround(self.backgroundImage, pygame.Vector2(0, 0), self.player)
-        self.seed = random.randrange(-1000000, 1000000)
+        self.seed = randrange(-1000000, 1000000)
         self.tiles = []
         self.decorations = []
         self.enemies = []
@@ -181,23 +181,23 @@ class Game:
                 
                 if pygame.Rect(tile.rect.x, tile.rect.y - 16, 16, 16) not in self.tiles:
                     if dimension == 0:
-                        if random.randrange(0, 10) == 5:
+                        if randrange(0, 10) == 5:
                             self.enemies.append(Worm(tile.rect.x, tile.rect.y-16, tile))
-                        if random.randrange(0, 30) == 5:
+                        if randrange(0, 30) == 5:
                             self.enemies.append(Fly(tile.rect.x, tile.rect.y- 16))
                     elif dimension == 1:
-                        if random.randrange(0, 5) == 3:
+                        if randrange(0, 5) == 3:
                             self.enemies.append(Skeleton(tile.rect.x, tile.rect.y-32, tile))
                     elif dimension == 2:
-                        if random.randrange(0, 10) == 5:
+                        if randrange(0, 10) == 5:
                             self.enemies.append(MagicOrb(tile.rect.x, tile.rect.y-32, tile))
                         #TODO: The lava dimension needs enemys :)
 
                     elif dimension == 3:
-                        if random.randrange(0, 5) == 3:
+                        if randrange(0, 5) == 3:
                             self.enemies.append(GreenBat(tile.rect.x, tile.rect.y-32))
 
-                    if random.randrange(0, 30) == 5:
+                    if randrange(0, 30) == 5:
                         self.decorations.append([mushroom_img, tile.rect.x, tile.rect.y-16, tile])
                     self.tiles[i].image = self.dimension_tops[dimension]
 
@@ -213,16 +213,16 @@ class Game:
                     self.tiles[i].image = self.dimension_side_left[dimension]
 
                 if pygame.Rect(tile.rect.x, tile.rect.y + 16, 16, 16) not in self.tiles:
-                    if random.randrange(0, 5) == 1:
+                    if randrange(0, 5) == 1:
                         if dimension == 1:
                             self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+16, tile])
                             self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+32, tile])
-                            if random.randrange(0, 3) == 2:
+                            if randrange(0, 3) == 2:
                                 self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+48, tile])
                         elif dimension == 0:
                             self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y+16, tile])
                         elif dimension == 2:
-                            if random.randrange(0, 3) == 2:
+                            if randrange(0, 3) == 2:
                                 
                                 count = 1
                                 while pygame.Rect(tile.rect.x, tile.rect.y + count * 16, 16, 16) not in self.tiles:
@@ -253,7 +253,7 @@ class Game:
                                             self.enemies.append(LavaCrab(CrabRectRight.x, CrabRectRight.y, tile, True, count-1, tile))
                                     
                                     else:
-                                        randomDir = random.choice([CrabRectLeft, CrabRectRight])
+                                        randomDir = choice([CrabRectLeft, CrabRectRight])
                                         direction = [False, True][[CrabRectLeft, CrabRectRight].index(randomDir)]
 
                                         self.enemies.append(LavaCrab(randomDir.x, randomDir.y, tile, direction, count-1, tile))
@@ -286,7 +286,7 @@ class Game:
                     ):  
                         self.screen_shake += 1
                         for i in range(4):
-                            self.explosions.append([tile.rect.x, tile.rect.y+random.randrange(-7, 7), random.randrange(-4, 4),random.randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
+                            self.explosions.append([tile.rect.x, tile.rect.y+randrange(-7, 7), randrange(-4, 4),randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
                         self.bullets.remove(bullet)
                     
                 for bomb in self.bombs:
@@ -370,7 +370,7 @@ class Game:
                             self.player.y_velocity -= self.player.JUMP_HEIGHT
                             self.player.jump_count += 1
                             for i in range(15):
-                                self.particle_manager.particles.append(Particle(self.player.rect.x, self.player.rect.y, random.randrange(5, 10), random.randrange(-3, 3), 0, True, random.randrange(3, 6), True))
+                                self.particle_manager.particles.append(Particle(self.player.rect.x, self.player.rect.y, randrange(5, 10), randrange(-3, 3), 0, True, randrange(3, 6), True))
                         if not self.player.is_on_ground and self.player.jump_count < 2:
                             self.jump_sound.play()
                             self.player.y_velocity = 1
@@ -408,8 +408,8 @@ class Game:
                     mx /= 4
                     my /= 4
 
-                    mx += random.randrange(-10, 10)
-                    my += random.randrange(-10, 10)
+                    mx += randrange(-10, 10)
+                    my += randrange(-10, 10)
 
                     rel_x, rel_y = mx - (self.player.rect.x-self.player.camera.x), my - (self.player.rect.y-self.player.camera.y)
 
@@ -425,11 +425,10 @@ class Game:
 
             self.portal.draw(self.display, self.player.camera)
             
-            if self.kills >= self.kill_goals[self.dimension]:
-                self.portal.player_attract(self.player)
+
             self.portal.draw(self.minimap, pygame.math.Vector2(0, 0))
 
-            self.player.handle_movement(self.key_presses, self.tiles)
+            self.player.handle_movement(self.key_presses, self.tiles, self)
             self.player.draw(self.display)
            # self.minimap.blit(
             #    pygame.transform.scale(
@@ -450,8 +449,8 @@ class Game:
                     if enemy.bullet_cooldown <= 0 and math.dist([self.player.rect.x, self.player.rect.y], [enemy.x, enemy.y]) < 50:
                         x = enemy.x-self.player.camera.x
                         y = enemy.y-self.player.camera.y
-                        px = self.player.rect.x-self.player.camera.x+random.randrange(-30, 30)
-                        py = self.player.rect.y-self.player.camera.y+random.randrange(-30, 30)
+                        px = self.player.rect.x-self.player.camera.x+randrange(-30, 30)
+                        py = self.player.rect.y-self.player.camera.y+randrange(-30, 30)
 
 
                         angle = math.atan2(y-py, x-px)
@@ -465,7 +464,7 @@ class Game:
 
                     if enemy.health <= 0:
                         for i in range(5):
-                                self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
+                                self.explosions.append([enemy.x, enemy.y+randrange(-17, 17), randrange(-4, 4),randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
                         self.enemies.remove(enemy)
                         self.kills += 1
                     enemy.draw(self.display, self.player.camera, self.player, self)
@@ -520,13 +519,13 @@ class Game:
                                 enemy.x -= bullet.x_vel / 2 
                                 enemy.y -= bullet.y_vel  / 2
                             for i in range(10):
-                                self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
+                                self.explosions.append([enemy.x, enemy.y+randrange(-17, 17), randrange(-4, 4),randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
                             self.screen_shake += 5
                             enemy.health -= 1
 
                     if enemy.health <= 0:
                         for i in range(10):
-                            self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (255, 255, 255), False, 1, 100])
+                            self.explosions.append([enemy.x, enemy.y+randrange(-17, 17), randrange(-4, 4),randrange(-2, 7), 1, (255, 255, 255), False, 1, 100])
                         
                         self.enemies.remove(enemy)
                         self.kills += 1
@@ -570,10 +569,10 @@ class Game:
             for part in self.explosions:
                     if part[7] <= 0:
                         self.explosions.remove(part)
-                    part[1] -= part[3]*random.random()
+                    part[1] -= part[3]*random()
                     if part[3] > -10:
                         part[3] -= .3
-                    part[0] += part[2]*random.random()
+                    part[0] += part[2]*random()
                     part[4] += .01
                     part[7] -= .005
                     if part[6] is False:
@@ -597,7 +596,7 @@ class Game:
                     self.screen_shake += 10
                     self.explosion_sound.play()
                     for i in range(100):
-                        self.explosions.append([bomb.x, bomb.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
+                        self.explosions.append([bomb.x, bomb.y+randrange(-17, 17), randrange(-4, 4),randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
                     for tile in bomb.tiles_to_remove:
                         try:
                             self.tiles.remove(tile) 
@@ -617,7 +616,7 @@ class Game:
                 if self.player.get_rect().colliderect(rect):
                     self.screen_shake += 4
                     for i in range(10):
-                        self.explosions.append([enemy.x, enemy.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
+                        self.explosions.append([enemy.x, enemy.y+randrange(-17, 17), randrange(-4, 4),randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
                     self.player.hp -= 1
                     self.hit_sound.play()
                     self.gui_manager.get_element(1).update_hp(self.player.hp)
@@ -645,8 +644,8 @@ class Game:
             for bullet in self.bullets:
                 bullet.main(self.display)        
 
-            self.player.camera.x += (random.randint(0, 8) - 4) * bool(self.screen_shake) 
-            self.player.camera.y += (random.randint(0, 8) - 4) * bool(self.screen_shake)
+            self.player.camera.x += (randint(0, 8) - 4) * bool(self.screen_shake) 
+            self.player.camera.y += (randint(0, 8) - 4) * bool(self.screen_shake)
 
             self.screen_shake -= 1 * bool(self.screen_shake)
 

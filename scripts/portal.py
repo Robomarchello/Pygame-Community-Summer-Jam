@@ -1,6 +1,8 @@
 import pygame
 from random import randint
 
+import math
+
 
 class Particle:
     def __init__(self, position, distance):
@@ -118,14 +120,12 @@ class Portal():
 
     def player_attract(self, player):
         '''attracts the player to the portal'''
-        minDist = 100
-        playerCenter = pygame.Vector2(player.rect.center - player.camera)
-        portalCenter = pygame.Vector2(self.posRect.center)
-        distance = playerCenter.distance_to(portalCenter)
-            
-        if distance < minDist:
-            direction = playerCenter - portalCenter
-            
-            player.rect.topleft += direction.normalize() * -2
+        if math.dist([player.rect.x, player.rect.y], [self.posRect.x, self.posRect.y]) < 100:
+            dx, dy = player.move_towards(self.posRect.x, self.posRect.y+self.offset, 10)
+            player.player_movement["horizontal"] += dx / 4
+            player.player_movement["vertical"] += dy / 4
+
+
+            #player.rect.topleft += direction.normalize() * -2
             
                 

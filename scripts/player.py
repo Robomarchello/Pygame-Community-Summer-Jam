@@ -96,12 +96,15 @@ class Player(Entity):
 
         return player_rect
 
-    def handle_movement(self, key_presses: dict, tiles) -> pygame.Rect:
+    def handle_movement(self, key_presses: dict, tiles, game) -> pygame.Rect:
         """
         Handles all code relating to the movement of the player
         """
 
         self.player_movement = {"horizontal": 0, "vertical": self.y_velocity}
+
+        if game.kills >= game.kill_goals[game.dimension]:
+            game.portal.player_attract(game.player)
 
         if key_presses["a"]:
             self.moving = True
