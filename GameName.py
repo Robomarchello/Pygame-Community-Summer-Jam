@@ -100,7 +100,7 @@ class Game:
         self.screen_shake = 0
 
         self.kill_goals = [10, 11, 15, 4, 1]
-        self.dimension = -1
+        self.dimension = 3
         self.kills = 0
 
         self.light_surf = None
@@ -191,11 +191,7 @@ class Game:
                         if randrange(0, 5) == 3:
                             self.enemies.append(Skeleton(tile.rect.x, tile.rect.y-32, tile))
                     elif dimension == 2:
-<<<<<<< HEAD
                         if randrange(0, 10) == 5:
-=======
-                        if random.randrange(0, 13) == 5:
->>>>>>> 12d05bfe81e2d731b23fb1d4bbbe1f4db8d3c84f
                             self.enemies.append(MagicOrb(tile.rect.x, tile.rect.y-32, tile))
                         #TODO: The lava dimension needs enemys :)
 
@@ -435,13 +431,9 @@ class Game:
 
             self.portal.draw(self.minimap, pygame.math.Vector2(0, 0))
 
-<<<<<<< HEAD
-            self.player.handle_movement(self.key_presses, self.tiles, self)
-=======
             if not self.WinScreen.won or not self.GameOver.GameOver:
-                self.player.handle_movement(self.key_presses, self.tiles)
+                self.player.handle_movement(self.key_presses, self.tiles, self)
                 
->>>>>>> 12d05bfe81e2d731b23fb1d4bbbe1f4db8d3c84f
             self.player.draw(self.display)
            # self.minimap.blit(
             #    pygame.transform.scale(
@@ -494,9 +486,12 @@ class Game:
             if self.dimension == 3 and self.kills == self.kill_goals[self.dimension] - 1 and not self.has_spawned_boss:
                 self.boss_cut_scene = True
                 if not self.has_spawned_boss:
+                    pygame.mixer.music.unload()
+                    pygame.mixer.music.load("assets/sounds/boss_fight.mp3")
+                    pygame.mixer.music.play(-1)
                     self.enemies = []
                     self.enemies.append(Boss(self.player.rect.x, 
-                    self.player.rect.y - 190, self.player.rect.y - 10))
+                    self.player.rect.y - 190, self.player.rect.y - 50))
                     self.has_spawned_boss = True
 
             if self.boss_cut_scene:
@@ -662,14 +657,8 @@ class Game:
             for bullet in self.bullets:
                 bullet.main(self.display)        
 
-<<<<<<< HEAD
             self.player.camera.x += (randint(0, 8) - 4) * bool(self.screen_shake) 
             self.player.camera.y += (randint(0, 8) - 4) * bool(self.screen_shake)
-=======
-            
-            self.player.camera.x += (random.randint(0, 8) - 4) * bool(self.screen_shake) 
-            self.player.camera.y += (random.randint(0, 8) - 4) * bool(self.screen_shake)
->>>>>>> 12d05bfe81e2d731b23fb1d4bbbe1f4db8d3c84f
 
             self.screen_shake -= 1 * bool(self.screen_shake)
 

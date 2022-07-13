@@ -64,8 +64,8 @@ class Boss(Entity):
                 target_x = x1-camera.x
                 target_y = y1-camera.y
                 angle = math.atan2((self.y-camera.y)-target_y, (self.x-camera.x)-target_x)
-                x_vel = math.cos(angle) * 3
-                y_vel = math.sin(angle) * 3
+                x_vel = math.cos(angle) * 6
+                y_vel = math.sin(angle) * 6
                 
                 bullet = [x_vel, y_vel]
 
