@@ -465,7 +465,7 @@ class MagicOrb(Entity):
 
         distance = math.dist([player.rect.x, player.rect.y], [self.x, self.y])
         
-        if self.bullet_cooldown <= 0 and distance < 150:
+        if self.bullet_cooldown <= 0 and distance < 130:
             for i in range(5):
                 x = self.x-camera.x + 5
                 y = self.y-camera.y

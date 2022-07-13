@@ -17,6 +17,7 @@ from scripts.bomb import Bomb
 from scripts.enemy_bullet import EnemyBullet
 from scripts.background_scroll import BackGround
 from scripts.game_over import GameOver
+from scripts.win_menu import EndManager
 
 from random import randrange, seed, randint, random, choice
 from typing import List
@@ -70,6 +71,7 @@ class Game:
         self.player = Player(300, 400)
 
         self.GameOver = GameOver((200, 150), self.display)
+        self.WinScreen = EndManager((200, 150), self.display)
 
         self.gui_manager = GuiManager([Text(60, 10, "kill goal", 40), HealthBar(self.player, pygame.Rect(56, 130 , 75, 12), self.GameOver)]) 
 
@@ -97,7 +99,7 @@ class Game:
 
         self.screen_shake = 0
 
-        self.kill_goals = [10, 11, 1, 4, 1]
+        self.kill_goals = [10, 11, 15, 4, 1]
         self.dimension = -1
         self.kills = 0
 
@@ -189,7 +191,11 @@ class Game:
                         if randrange(0, 5) == 3:
                             self.enemies.append(Skeleton(tile.rect.x, tile.rect.y-32, tile))
                     elif dimension == 2:
+<<<<<<< HEAD
                         if randrange(0, 10) == 5:
+=======
+                        if random.randrange(0, 13) == 5:
+>>>>>>> 12d05bfe81e2d731b23fb1d4bbbe1f4db8d3c84f
                             self.enemies.append(MagicOrb(tile.rect.x, tile.rect.y-32, tile))
                         #TODO: The lava dimension needs enemys :)
 
@@ -227,7 +233,7 @@ class Game:
                                 count = 1
                                 while pygame.Rect(tile.rect.x, tile.rect.y + count * 16, 16, 16) not in self.tiles:
                                     count += 1
-                                    if count < 40:
+                                    if count < 40 and count > 1:
                                         self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y + (count - 1) * 16, tile, 0])
                                     else:
                                         break
@@ -399,6 +405,7 @@ class Game:
                         self.player.SPEED -= 1
 
                 self.GameOver.handle_event(event)
+                self.WinScreen.handle_event(event)
                 
             if self.clicking:
                 if self.shoot_cooldown <= 0:
@@ -428,7 +435,13 @@ class Game:
 
             self.portal.draw(self.minimap, pygame.math.Vector2(0, 0))
 
+<<<<<<< HEAD
             self.player.handle_movement(self.key_presses, self.tiles, self)
+=======
+            if not self.WinScreen.won or not self.GameOver.GameOver:
+                self.player.handle_movement(self.key_presses, self.tiles)
+                
+>>>>>>> 12d05bfe81e2d731b23fb1d4bbbe1f4db8d3c84f
             self.player.draw(self.display)
            # self.minimap.blit(
             #    pygame.transform.scale(
@@ -630,6 +643,11 @@ class Game:
             #transition between dimensions
             if self.player.rect.colliderect(self.portal.posRect) and not self.dimTrans.active and self.kills >= self.kill_goals[self.dimension]:
                 self.dimTrans.activize()
+
+                newHp = self.player.hp + 20
+                if newHp >= 100:
+                    newHp = 100
+                self.gui_manager.get_element(1).update_hp(newHp)
             
             if self.dimTrans.change_scene:
                 self.dimTrans.change_scene = False
@@ -644,14 +662,25 @@ class Game:
             for bullet in self.bullets:
                 bullet.main(self.display)        
 
+<<<<<<< HEAD
             self.player.camera.x += (randint(0, 8) - 4) * bool(self.screen_shake) 
             self.player.camera.y += (randint(0, 8) - 4) * bool(self.screen_shake)
+=======
+            
+            self.player.camera.x += (random.randint(0, 8) - 4) * bool(self.screen_shake) 
+            self.player.camera.y += (random.randint(0, 8) - 4) * bool(self.screen_shake)
+>>>>>>> 12d05bfe81e2d731b23fb1d4bbbe1f4db8d3c84f
 
             self.screen_shake -= 1 * bool(self.screen_shake)
 
-            self.gui_manager.draw_gui_elements(self.display, self.events)
-            self.gui_manager.get_element(0).update_text(f"Kill Goal {self.kills}/{self.kill_goals[self.dimension]}")
+            if not self.WinScreen.won:
+                self.gui_manager.draw_gui_elements(self.display, self.events)
+                self.gui_manager.get_element(0).update_text(f"Kill Goal {self.kills}/{self.kill_goals[self.dimension]}")
 
+            if self.player.rect.y > (50 * 16) + 200:
+                self.GameOver.GameOver = True
+                self.GameOver.visible = True
+                
             self.GameOver.draw(self.display)
             if self.GameOver.RestartMenu.restart:
                 self.dimension = 0
@@ -661,7 +690,7 @@ class Game:
                 self.player.rect.topleft = (400, 300)
                 
             self.GameOver.restart(self.gui_manager.get_element(1), self)
-            
+            self.WinScreen.draw(self.display, self.dimension)
 
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))
