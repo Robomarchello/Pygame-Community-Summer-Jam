@@ -98,7 +98,7 @@ class Game:
         self.screen_shake = 0
 
         self.kill_goals = [10, 11, 1, 4, 1]
-        self.dimension = 2
+        self.dimension = -1
         self.kills = 0
 
         self.light_surf = None
@@ -475,7 +475,7 @@ class Game:
                 if not self.has_spawned_boss:
                     self.enemies = []
                     self.enemies.append(Boss(self.player.rect.x, 
-                    self.player.rect.y - 190, self.player.rect.y))
+                    self.player.rect.y - 190, self.player.rect.y - 10))
                     self.has_spawned_boss = True
 
             if self.boss_cut_scene:
@@ -572,6 +572,8 @@ class Game:
                     pygame.draw.circle(self.display, part[5], (part[0]-self.player.camera.x, part[1]-self.player.camera.y), part[4])
 
             for bomb in self.bombs:
+                if bomb.lifetime <= 0:
+                    self.bombs.remove(bomb)
                 bomb.draw(self.display, self.player.camera)
                 if bomb.countdown > 0:
                     bomb.countdown -= 1
@@ -581,6 +583,7 @@ class Game:
                     bomb.should_play_click_sound_cooldown = 10
                 else:
                     bomb.should_play_click_sound_cooldown -= 1
+
                 if bomb.countdown <= 0 and not bomb.should_move_down:
                     self.screen_shake += 10
                     self.explosion_sound.play()

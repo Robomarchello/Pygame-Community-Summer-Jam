@@ -392,7 +392,6 @@ class LavaCrab(Entity):
         self.bullet_patterns = [[0.5, 0], [-0.5, 0], [0, 0.5], [0, -0.5], [0.25, 0.25], [-0.25, 0.25], [0.25, -0.25], [-0.25, -0.25]]
 
         self.CamRect = pygame.Rect
-        
 
     def __repr__(self):
         return "LavaCrab"

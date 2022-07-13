@@ -15,8 +15,10 @@ class Bomb(Entity):
         self.detonate = False
         self.tiles_to_remove = []
         self.should_play_click_sound_cooldown = 0
+        self.lifetime = 100
 
     def draw(self, display, camera):
+        self.lifetime -= 1
         self.y_vel += 0.3
         if self.should_move_down:
             self.y += self.y_vel
