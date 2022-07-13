@@ -645,6 +645,10 @@ class Game:
             self.gui_manager.draw_gui_elements(self.display, self.events)
             self.gui_manager.get_element(0).update_text(f"Kill Goal {self.kills}/{self.kill_goals[self.dimension]}")
 
+            if self.player.rect.y > (50 * 16) + 200:
+                self.GameOver.GameOver = True
+                self.GameOver.visible = True
+                
             self.GameOver.draw(self.display)
             if self.GameOver.RestartMenu.restart:
                 self.dimension = 0
