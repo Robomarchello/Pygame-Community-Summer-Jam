@@ -119,6 +119,9 @@ class Game:
         self.tut_text1 = self.regularText.render("WASD to move", False, (255, 255, 255))
         self.tut_text2 = self.regularText.render("Left click to shoot", False, (255, 255, 255))
         self.tut_text3 = self.regularText.render("Right click to throw bomb", False, (255, 255, 255))
+        self.tut_text4 = self.regularText.render("Once the kill goal is", False, (255, 255, 255))
+        self.tut_text5 = self.regularText.render("reached, use the portal", False, (255, 255, 255))
+
 
         self.bg_colors = [(17, 24, 55), (0, 10, 3), (23, 23, 17), (17, 24, 55), (0, 0, 0)]
 
@@ -267,6 +270,11 @@ class Game:
                     self.display.blit(self.tut_text1, (200 - self.player.camera.x, 450 - self.player.camera.y))
                     self.display.blit(self.tut_text2, (290 - self.player.camera.x, 450 - self.player.camera.y))
                     self.display.blit(self.tut_text3, (405 - self.player.camera.x, 450 - self.player.camera.y))
+
+                    self.display.blit(self.tut_text4, (560 - self.player.camera.x, 450 - self.player.camera.y))
+                    self.display.blit(self.tut_text5, (560 - self.player.camera.x, 460 - self.player.camera.y))
+
+
 
                 self.near_tiles.append(tile)
                 display.blit(tile.image, (tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y))
@@ -588,7 +596,7 @@ class Game:
                 if bomb.countdown <= 0 and not bomb.should_move_down:
                     self.screen_shake += 10
                     self.explosion_sound.play()
-                    for i in range(200):
+                    for i in range(100):
                         self.explosions.append([bomb.x, bomb.y+random.randrange(-17, 17), random.randrange(-4, 4),random.randrange(-2, 7), 1, (143, 86, 59), False, .2, 100])
                     for tile in bomb.tiles_to_remove:
                         try:
