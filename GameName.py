@@ -8,7 +8,7 @@ from scripts.tile import Tile
 from scripts.gui import Text, GuiManager, HealthBar
 from scripts.images import *
 from scripts.particle import Particle, ParticleManager
-from scripts.enemy import Worm, Fly, Skeleton, LavaCrab, MagicOrb, GreenBat
+from scripts.enemy import Worm, Fly, Skeleton, LavaCrab, MagicOrb, GreenBat, Boss
 from scripts.portal import Portal
 from scripts.dimension_transition import dimTrans
 from scripts.bullet import Bullet
@@ -96,11 +96,11 @@ class Game:
         self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert(), pygame.image.load('assets/images/backgrounds/lava.png').convert(), pygame.image.load('assets/images/backgrounds/green.png').convert(), pygame.image.load('assets/images/backgrounds/background_1.png').convert()]
 
         self.screen_shake = 0
-
-        self.kill_goals = [10, 11, 1,1]
-        self.dimension =-1
-
+        self.kill_goals = [10, 11, 1, 3, 1]
+        self.dimension = 3
         self.kills = 0
+
+        self.light_surf = None
 
         self.dimension_tops = [grassy_top, dungeon_top, lava_top, green_top, grassy_top]
         self.dimension_right = [grassy_right, dungeon_right, lava_right, green_right, grassy_right]
@@ -129,6 +129,9 @@ class Game:
         self.explosion_sound = pygame.mixer.Sound("assets/sounds/explosion.wav")
         self.explosion_countdown_sound = pygame.mixer.Sound("assets/sounds/click.wav")
         self.hit_sound = pygame.mixer.Sound("assets/sounds/hit.wav")
+
+        self.boss_cut_scene = False
+        self.has_spawned_boss = False
     
     def generate_map(self, noise_size, threshold, dimension):
         self.backgroundImage = self.background_imgs[dimension]
@@ -325,8 +328,7 @@ class Game:
         self.player.camera = pygame.Vector2(self.portal.position)
 
         self.dimTrans = dimTrans(pygame.Rect(0, 0, 200, 150))
-        light_surf = self.display.copy()
-
+        self.light_surf = self.display.copy()
 
         pygame.mouse.set_cursor(pygame.cursors.Cursor((0, 0), pygame.transform.scale(cursor_img, (16, 16))))
 
@@ -380,6 +382,7 @@ class Game:
                 self.GameOver.handle_event(event)
                 
             if self.clicking:
+                self.kills += 1
                 if self.shoot_cooldown <= 0:
                     self.shoot_sound.play()
                     self.screen_shake += 2
@@ -389,7 +392,6 @@ class Game:
 
                     mx += random.randrange(-10, 10)
                     my += random.randrange(-10, 10)
-
 
                     rel_x, rel_y = mx - (self.player.rect.x-self.player.camera.x), my - (self.player.rect.y-self.player.camera.y)
 
@@ -457,9 +459,23 @@ class Game:
 
             self.particle_manager.manage_particles(self.display, self.player.camera)
 
-            light_surf.fill((0, 0, 0))
+            self.light_surf.fill((0, 0, 0))
 
-            self.glow(light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), 90)
+            if self.dimension == 3 and self.kills >= self.kill_goals[self.dimension]:
+                self.boss_cut_scene = True
+                if not self.has_spawned_boss:
+                    self.enemies = []
+                    self.enemies.append(Boss(self.player.rect.x, 
+                    self.player.rect.y - 190, self.player.rect.y-100))
+                    self.has_spawned_boss = True
+
+            if self.boss_cut_scene:
+                self.player.camera.y -= 10
+                self.glow(self.light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), 200)                
+
+            else:
+                self.glow(self.light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), 90)                
+            
             for enemy in self.enemies:  
                 if str(enemy) != "Worm":
                     for bullet in self.bullets:
@@ -493,7 +509,6 @@ class Game:
                         
                         self.enemies.remove(enemy)
                         self.kills += 1
-
 
                 enemy.draw(self.display, self.player.camera, self.player, self)
 
@@ -572,7 +587,7 @@ class Game:
                 bullet[0] -= bullet[2][0]
                 bullet[1] -= bullet[2][1]
                 bullet[3] -= 1
-                self.glow(light_surf, self.player, (bullet[0]-self.player.camera.x, bullet[1]-self.player.camera.y), 7)
+                self.glow(self.light_surf, self.player, (bullet[0]-self.player.camera.x, bullet[1]-self.player.camera.y), 7)
                 rect = pygame.Rect(bullet[0]-self.player.camera.x-2, bullet[1]-self.player.camera.y, 4, 4)
 
                 if self.player.get_rect().colliderect(rect):
@@ -587,8 +602,7 @@ class Game:
 
                 pygame.draw.circle(self.display, (154, 40, 53), (bullet[0]-self.player.camera.x, bullet[1]-self.player.camera.y), 2)
 
-
-            self.display.blit(light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+            self.display.blit(self.light_surf, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
 
             #transition between dimensions
             if self.player.rect.colliderect(self.portal.posRect) and not self.dimTrans.active and self.kills >= self.kill_goals[self.dimension]:

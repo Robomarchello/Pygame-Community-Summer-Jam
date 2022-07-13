@@ -5,6 +5,28 @@ import math
 from scripts.entity import Entity
 from scripts.images import * 
 
+class Boss(Entity):
+    def __init__(self, x, y, target_y):
+        super().__init__(x, y)
+
+        self.health = 20
+        self.target_y = target_y
+
+    def __repr__(self):
+        return "Boss"
+
+    def cutscene(self, game):
+        if game.boss_cut_scene:
+            if self.y < self.target_y:
+                self.y += 1
+            else:
+                game.player.camera.y += 10
+                game.boss_cut_scene  = False
+
+    def draw(self, display, camera, player, game):
+        self.cutscene(game)
+        pygame.draw.rect(display, (255, 0, 0), (self.x-camera.x, self.y-camera.y, 32, 32))
+
 class GreenBat(Entity):
     def __init__(self, x, y):
         super().__init__(x, y)
