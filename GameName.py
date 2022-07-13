@@ -99,8 +99,8 @@ class Game:
 
         self.screen_shake = 0
 
-        self.kill_goals = [10, 11, 1, 4, 1]
-        self.dimension = 4
+        self.kill_goals = [10, 11, 15, 4, 1]
+        self.dimension = -1
         self.kills = 0
 
         self.light_surf = None
@@ -188,7 +188,7 @@ class Game:
                         if random.randrange(0, 5) == 3:
                             self.enemies.append(Skeleton(tile.rect.x, tile.rect.y-32, tile))
                     elif dimension == 2:
-                        if random.randrange(0, 10) == 5:
+                        if random.randrange(0, 13) == 5:
                             self.enemies.append(MagicOrb(tile.rect.x, tile.rect.y-32, tile))
                         #TODO: The lava dimension needs enemys :)
 
@@ -226,7 +226,7 @@ class Game:
                                 count = 1
                                 while pygame.Rect(tile.rect.x, tile.rect.y + count * 16, 16, 16) not in self.tiles:
                                     count += 1
-                                    if count < 40:
+                                    if count < 40 and count > 1:
                                         self.decorations.append([self.down_decorations[dimension], tile.rect.x, tile.rect.y + (count - 1) * 16, tile, 0])
                                     else:
                                         break
