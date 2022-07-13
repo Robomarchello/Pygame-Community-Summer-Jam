@@ -101,11 +101,11 @@ class EndManager():
             self.won = False
             game.player.hp = 100
             
-    def draw(self, screen, dimension):
+    def draw(self, screen, dimension, game):
         if self.visible:
             self.winMenu.draw(screen)
         
-        if dimension > 3:
+        if dimension >= 3 and game.enemies[-1].health <= 0:
             self.won = True
             self.visible = True
 

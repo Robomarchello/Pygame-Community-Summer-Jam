@@ -101,7 +101,7 @@ class Game:
 
         self.kill_goals = [10, 11, 15, 4, 1]
         self.dimension = 3
-        self.kills = 0
+        self.kills = 3
 
         self.light_surf = None
 
@@ -470,7 +470,8 @@ class Game:
                     if enemy.health <= 0:
                         for i in range(5):
                                 self.explosions.append([enemy.x, enemy.y+randrange(-17, 17), randrange(-4, 4),randrange(-2, 7), 1, (198, 80, 90), False, .2, 100])
-                        self.enemies.remove(enemy)
+                        if str(enemy) != "Boss":
+                            self.enemies.remove(enemy)
                         self.kills += 1
                     enemy.draw(self.display, self.player.camera, self.player, self)
 
@@ -491,7 +492,7 @@ class Game:
                     pygame.mixer.music.play(-1)
                     self.enemies = []
                     self.enemies.append(Boss(self.player.rect.x, 
-                    self.player.rect.y - 190, self.player.rect.y - 50))
+                    self.player.rect.y - 190, self.player.rect.y - 100))
                     self.has_spawned_boss = True
 
             if self.boss_cut_scene:
@@ -534,8 +535,8 @@ class Game:
                     if enemy.health <= 0:
                         for i in range(10):
                             self.explosions.append([enemy.x, enemy.y+randrange(-17, 17), randrange(-4, 4),randrange(-2, 7), 1, (255, 255, 255), False, 1, 100])
-                        
-                        self.enemies.remove(enemy)
+                        if str(enemy) != "Boss":
+                            self.enemies.remove(enemy)
                         self.kills += 1
 
                 enemy.draw(self.display, self.player.camera, self.player, self)
@@ -679,7 +680,7 @@ class Game:
                 self.player.rect.topleft = (400, 300)
                 
             self.GameOver.restart(self.gui_manager.get_element(1), self)
-            self.WinScreen.draw(self.display, self.dimension)
+            self.WinScreen.draw(self.display, self.dimension, self)
 
             self.screen.blit(pygame.transform.scale(self.display, (self.scale_x, self.scale_y)), (0, 0))
             self.screen.blit(pygame.transform.scale(self.minimap, (200, 150)), (0, 0))
