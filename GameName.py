@@ -628,6 +628,11 @@ class Game:
             #transition between dimensions
             if self.player.rect.colliderect(self.portal.posRect) and not self.dimTrans.active and self.kills >= self.kill_goals[self.dimension]:
                 self.dimTrans.activize()
+
+                newHp = self.player.hp + 20
+                if newHp >= 100:
+                    newHp = 100
+                self.gui_manager.get_element(1).update_hp(newHp)
             
             if self.dimTrans.change_scene:
                 self.dimTrans.change_scene = False
