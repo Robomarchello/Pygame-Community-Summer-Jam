@@ -98,7 +98,7 @@ class Game:
         self.screen_shake = 0
 
         self.kill_goals = [10, 11, 1, 4, 1]
-        self.dimension = 3
+        self.dimension = 2
         self.kills = 0
 
         self.light_surf = None
@@ -313,13 +313,11 @@ class Game:
                         if enemy.displaced:
                             if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16 + (14 * str(enemy) == "Skeleton"), 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
                                 enemy.tile = tile
-
-                        if self.boss_cut_scene:
-                            if str(enemy) == "Boss":
-                                if pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 32, 32).colliderect(
-                                    pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)
-                                ):
-                                    self.tiles.remove(tile)
+                        if str(enemy) == "Boss":
+                            if pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 32, 32).colliderect(
+                                pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)
+                            ):
+                                self.tiles.remove(tile)
                     except:
                         pass
                      
@@ -477,7 +475,7 @@ class Game:
                 if not self.has_spawned_boss:
                     self.enemies = []
                     self.enemies.append(Boss(self.player.rect.x, 
-                    self.player.rect.y - 190, self.player.rect.y-50))
+                    self.player.rect.y - 190, self.player.rect.y))
                     self.has_spawned_boss = True
 
             if self.boss_cut_scene:
@@ -509,7 +507,7 @@ class Game:
                                 self.bullets.remove(bullet)
                             except ValueError as e:
                                 pass
-                            if str(enemy) != "Skeleton":
+                            if str(enemy) != "Skeleton" and str(enemy) != "MagicOrb" and str(enemy) != "Crab":
                                 enemy.x -= bullet.x_vel / 2 
                                 enemy.y -= bullet.y_vel  / 2
                             for i in range(10):

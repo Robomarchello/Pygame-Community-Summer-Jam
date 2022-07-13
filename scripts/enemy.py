@@ -43,11 +43,11 @@ class Boss(Entity):
         self.cutscene(game)
 
         if self.state == 0:
-            #if self.right:
-             #   self.x += 1
+            if self.right:
+                self.x += 1
 
-            #else:
-             #   self.x -= 1
+            else:
+                self.x -= 1
 
             if self.change_cooldown <= 0:
                 self.right = not self.right
@@ -363,7 +363,7 @@ class LavaCrab(Entity):
 
         self.timer = 10
 
-        self.health = 2
+        self.health = 6
 
         self.has_died = False
         self.wait_time = 10
