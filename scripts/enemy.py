@@ -19,8 +19,10 @@ class Boss(Entity):
         if game.boss_cut_scene:
             if self.y < self.target_y:
                 self.y += 1
+                game.glow_size = 200
             else:
                 game.player.camera.y += 10
+                game.glow_size = 90
                 game.boss_cut_scene  = False
 
     def draw(self, display, camera, player, game):

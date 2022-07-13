@@ -132,6 +132,8 @@ class Game:
 
         self.boss_cut_scene = False
         self.has_spawned_boss = False
+
+        self.glow_size = 90
     
     def generate_map(self, noise_size, threshold, dimension):
         self.backgroundImage = self.background_imgs[dimension]
@@ -382,7 +384,6 @@ class Game:
                 self.GameOver.handle_event(event)
                 
             if self.clicking:
-                self.kills += 1
                 if self.shoot_cooldown <= 0:
                     self.shoot_sound.play()
                     self.screen_shake += 2
@@ -471,10 +472,8 @@ class Game:
 
             if self.boss_cut_scene:
                 self.player.camera.y -= 10
-                self.glow(self.light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), 200)                
 
-            else:
-                self.glow(self.light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), 90)                
+            self.glow(self.light_surf, self.player, (self.player.rect.x-self.player.camera.x, self.player.rect.y-self.player.camera.y), self.glow_size)                
             
             for enemy in self.enemies:  
                 if str(enemy) != "Worm":
