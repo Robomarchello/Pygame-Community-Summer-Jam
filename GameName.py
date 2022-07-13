@@ -96,7 +96,7 @@ class Game:
         self.background_imgs = [pygame.image.load('assets/images/backgrounds/background_1.png').convert(), pygame.image.load('assets/images/backgrounds/dungeon.png').convert(), pygame.image.load('assets/images/backgrounds/lava.png').convert(), pygame.image.load('assets/images/backgrounds/green.png').convert(), pygame.image.load('assets/images/backgrounds/background_1.png').convert()]
 
         self.screen_shake = 0
-        self.kill_goals = [10, 11, 1, 3, 1]
+        self.kill_goals = [10, 11, 1, 4, 1]
         self.dimension = 3
         self.kills = 0
 
@@ -312,8 +312,17 @@ class Game:
                         if enemy.displaced:
                             if pygame.Rect(enemy.x-self.player.camera.x+8, enemy.y-self.player.camera.y+16 + (14 * str(enemy) == "Skeleton"), 3, 3).colliderect(pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)):
                                 enemy.tile = tile
+
+                        if self.boss_cut_scene:
+                            if str(enemy) == "Boss":
+                                if pygame.Rect(enemy.x-self.player.camera.x, enemy.y-self.player.camera.y, 32, 32).colliderect(
+                                    pygame.Rect(tile.rect.x-self.player.camera.x, tile.rect.y-self.player.camera.y, 16, 16)
+                                ):
+                                    self.tiles.remove(tile)
                     except:
                         pass
+                     
+
 
     def glow(self, surf, host, pos, radius, offset=0):
         glow_width = abs(math.sin(offset)*25) + radius *2
@@ -462,12 +471,12 @@ class Game:
 
             self.light_surf.fill((0, 0, 0))
 
-            if self.dimension == 3 and self.kills >= self.kill_goals[self.dimension]:
+            if self.dimension == 3 and self.kills == self.kill_goals[self.dimension] - 1 and not self.has_spawned_boss:
                 self.boss_cut_scene = True
                 if not self.has_spawned_boss:
                     self.enemies = []
                     self.enemies.append(Boss(self.player.rect.x, 
-                    self.player.rect.y - 190, self.player.rect.y-100))
+                    self.player.rect.y - 190, self.player.rect.y-50))
                     self.has_spawned_boss = True
 
             if self.boss_cut_scene:

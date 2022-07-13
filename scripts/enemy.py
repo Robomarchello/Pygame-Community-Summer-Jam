@@ -12,6 +12,20 @@ class Boss(Entity):
         self.health = 20
         self.target_y = target_y
 
+        self.images = [self.load_image("green_cave/boss1"), self.load_image("green_cave/boss2"), self.load_image("green_cave/boss3")]
+
+        self.image = None
+        self.animation_index = 0
+        self.hitcooldown = 0
+
+        self.state = 0
+        self.right = True
+        self.change_cooldown = 0
+
+        self.degree = 0
+
+        self.bullet_cooldown = 0
+
     def __repr__(self):
         return "Boss"
 
@@ -27,8 +41,49 @@ class Boss(Entity):
 
     def draw(self, display, camera, player, game):
         self.cutscene(game)
-        pygame.draw.rect(display, (255, 0, 0), (self.x-camera.x, self.y-camera.y, 32, 32))
 
+        if self.state == 0:
+            #if self.right:
+             #   self.x += 1
+
+            #else:
+             #   self.x -= 1
+
+            if self.change_cooldown <= 0:
+                self.right = not self.right
+                self.change_cooldown = 60
+            else:
+                self.change_cooldown -= 1
+
+            if self.bullet_cooldown <= 0:
+                xradius = 200
+                yradius = 100
+                x1 = int(math.cos(self.degree*2*math.pi/360)*xradius)+300
+                y1 = int(math.sin(self.degree*2*math.pi/360)*xradius)+150
+                #pygame.draw.circle(display, RED, (x1-scroll[0]-100,y1-scroll[1]), 5)
+                target_x = x1-camera.x
+                target_y = y1-camera.y
+                angle = math.atan2((self.y-camera.y)-target_y, (self.x-camera.x)-target_x)
+                x_vel = math.cos(angle) * 3
+                y_vel = math.sin(angle) * 3
+                
+                bullet = [x_vel, y_vel]
+
+                game.enemy_bullets.append([self.x + 16, self.y + 16, bullet, 400, 0])
+                self.degree+=2
+
+                self.bullet_cooldown = 3
+            else:
+                self.bullet_cooldown -= 1
+
+        if self.hitcooldown > 0:
+            self.hitcooldown -= 1
+        if self.hitcooldown == 0:
+            self.image = self.images[self.animation_index // 15]
+
+        self.animation_index = self.animate(self.images, self.animation_index, 15)
+
+        display.blit(self.image, (self.x-camera.x, self.y-camera.y))
 class GreenBat(Entity):
     def __init__(self, x, y):
         super().__init__(x, y)
